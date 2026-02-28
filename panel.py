@@ -5,7 +5,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
 import calendar
-import glob
 import os
 import warnings
 warnings.filterwarnings('ignore')
@@ -15,26 +14,26 @@ st.title("📊 Panel Cuantitativo Multi-Cuenta Institucional")
 
 try:
     # ==========================================
-    # 0. SISTEMA DE CARPETAS (Bóveda y Diario)
+    # 0. SISTEMA DE CARPETAS (Diario)
     # ==========================================
-    if not os.path.exists("Cuentas_Antiguas"): os.makedirs("Cuentas_Antiguas")
     if not os.path.exists("Diario_Trading"): os.makedirs("Diario_Trading")
     if not os.path.exists("Diario_Trading/Screenshots"): os.makedirs("Diario_Trading/Screenshots")
 
     # ==========================================
-    # 1. RADAR AMPLIADO Y FILTRO ANTI-DUPLICADOS
+    # 1. CARGA SEGURA EN LA NUBE (DRAG & DROP)
     # ==========================================
-    archivos_csv = glob.glob("*.[cC][sS][vV]") + glob.glob("Files/*.[cC][sS][vV]") + glob.glob("Cuentas_Antiguas/*.[cC][sS][vV]")
-    
-    st.sidebar.markdown("### 🔍 Radar de Archivos")
-    if not archivos_csv:
-        st.sidebar.error("No veo ningún archivo CSV.")
-        st.stop()
-    else:
-        for arch in archivos_csv:
-            st.sidebar.success(f"Leyendo: {arch.split('/')[-1]}")
+    st.sidebar.markdown("### 📂 Carga de Datos Segura")
+    st.sidebar.write("Tus datos no se guardan en la nube. Privacidad 100% garantizada.")
+    archivos_subidos = st.sidebar.file_uploader("Arrastra aquí tus CSV de MetaTrader", type=['csv'], accept_multiple_files=True)
 
-    lista_dfs = [pd.read_csv(arch, encoding='latin1') for arch in archivos_csv]
+    if not archivos_subidos:
+        st.info("👋 **¡Bienvenida a tu panel profesional en la nube!**\n\n👈 Por favor, **arrastra y suelta tus archivos CSV** en el menú de la izquierda para generar tu análisis institucional. (Puedes subir varios a la vez).")
+        st.stop()
+
+    for arch in archivos_subidos:
+        st.sidebar.success(f"Cargado: {arch.name}")
+
+    lista_dfs = [pd.read_csv(arch, encoding='latin1') for arch in archivos_subidos]
     df = pd.concat(lista_dfs, ignore_index=True).drop_duplicates()
     
     if 'Cuenta' not in df.columns:
@@ -193,10 +192,8 @@ try:
     # ==========================================
     # NUEVO: MÉTRICAS QUANTS INSTITUCIONALES
     # ==========================================
-    # 1. Recovery Factor
     recovery_factor = beneficio_total / max_drawdown_dinero if max_drawdown_dinero > 0 else 0
     
-    # 2. SQN (System Quality Number) y Sharpe/Sortino
     if total_trades > 1:
         std_profit = df_trades[col_beneficio].std()
         sqn = (expectancia / std_profit) * np.sqrt(total_trades) if std_profit > 0 else 0
@@ -211,7 +208,6 @@ try:
     else:
         sqn, sharpe, sortino = 0, 0, 0
 
-    # Trader Score Global
     score_wr = min(100, win_rate * 2) 
     score_pf = min(100, profit_factor * 40) if profit_factor > 0 else 0 
     score_rr = min(100, risk_reward_ratio * 33.3) 
@@ -478,7 +474,7 @@ try:
                 <div style="background-color: #1e1e1e; padding: 15px; border-radius: 6px; border: 1px solid #444; text-align: center; margin-top: 5px;">
                     <span style="color: #eee; font-size: 16px; font-weight: bold; text-transform: uppercase;">Total {mes_seleccionado}:</span>
                     <span style="color: {color_mes}; font-size: 24px; font-weight: bold; margin-left: 15px;">{signo_mes}${total_pnl_mes:,.2f}</span>
-                    <span style="color: #aaa; font-size: 14px; margin-left: 10px;">({total_ops_mes} operations)</span>
+                    <span style="color: #aaa; font-size: 14px; margin-left: 10px;">({total_ops_mes} operaciones)</span>
                 </div>
                 """
                 st.markdown(html_mes, unsafe_allow_html=True)
@@ -525,7 +521,7 @@ try:
                 nota_actual = f.read()
                 
         nueva_nota = st.text_area(f"✍️ Tus impresiones del {fecha_str}:", value=nota_actual, height=180, placeholder="Ej: Hoy entré con buen setup, pero cerré antes de tiempo por miedo...")
-        nueva_img = st.file_uploader("📸 Sube la captura de tus gráficos (opcional)", type=["png", "jpg", "jpeg"])
+        nueva_img = st.file_uploader("📸 Sube la captura de tus gráficos (opcional)", type=["png", "jpg", "jpeg"], key="img_uploader")
         
         if st.button("💾 Guardar Registro del Día"):
             with open(nota_path, "w", encoding="utf-8") as f:
