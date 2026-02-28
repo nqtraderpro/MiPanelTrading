@@ -632,8 +632,7 @@ st.markdown("### 🧠 Tu Asistente de Trading Institucional")
 
 if "GOOGLE_API_KEY" in st.secrets:
     genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-    model = genai.GenerativeModel('gemini-1.5-flash')
-
+    model = genai.GenerativeModel('gemini-pro')
     contexto = f"Actúa como mi gestor de riesgo. Mis datos: Win Rate {win_rate:.1f}%, Profit Factor {profit_factor:.2f}, Beneficio ${beneficio_total:,.2f}."
 
     if "mensajes_ia" not in st.session_state:
