@@ -654,6 +654,6 @@ if "GOOGLE_API_KEY" in st.secrets:
                 st.markdown(respuesta)
                 st.session_state.mensajes_ia.append({"role": "assistant", "content": respuesta})
             except Exception as e:
-            st.error(f"⚠️ Error exacto de Google: {e}")
+                st.error(f"⚠️ Error exacto de Google: {e}")
 else:
     st.warning("⚠️ No has configurado la API Key en Streamlit Secrets.")
