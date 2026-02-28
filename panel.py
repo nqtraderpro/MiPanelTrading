@@ -631,28 +631,48 @@ st.markdown("---")
 st.markdown("### 🧠 Tu Asistente de Trading Institucional")
 
 if "GOOGLE_API_KEY" in st.secrets:
-    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-    model = genai.GenerativeModel('gemini-2.5-flash')
-    contexto = f"Actúa como mi gestor de riesgo. Mis datos: Win Rate {win_rate:.1f}%, Profit Factor {profit_factor:.2f}, Beneficio ${beneficio_total:,.2f}."
+        genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+        model = genai.GenerativeModel('gemini-2.5-flash')
 
-    if "mensajes_ia" not in st.session_state:
-        st.session_state.mensajes_ia = []
+        # --- 1. BOTÓN PARA LIMPIAR EL CHAT ---
+        col1, col2 = st.columns([8, 2]) # Ponemos el botón a la derecha
+        with col2:
+            if st.button("🗑️ Limpiar Chat"):
+                st.session_state.mensajes_ia = []
+                st.rerun()
 
-    for msg in st.session_state.mensajes_ia:
-        with st.chat_message(msg["role"]):
-            st.markdown(msg["content"])
+        # --- 2. EL SÚPER CONTEXTO INSTITUCIONAL ---
+        contexto = f"""
+        Eres un Gestor de Riesgos Cuantitativo Institucional. Estás CONECTADO DIRECTAMENTE a mi panel de trading y tienes ACCESO TOTAL a mis datos en tiempo real.
+        PROHIBIDO decir que no tienes acceso a mi información o que eres solo una IA. 
+        
+        Mis métricas EXACTAS ACTUALIZADAS en este milisegundo son:
+        - Win Rate: {win_rate:.1f}%
+        - Profit Factor: {profit_factor:.2f}
+        - Beneficio Neto: ${beneficio_total:,.2f}
+        
+        Usa estos datos exactos para responder. Sé directo, profesional, analítico y no uses advertencias genéricas.
+        """
 
-    if prompt := st.chat_input("Pregúntame sobre tu operativa..."):
-        st.session_state.mensajes_ia.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
+        if "mensajes_ia" not in st.session_state:
+            st.session_state.mensajes_ia = []
 
-        with st.chat_message("assistant"):
-            try:
-                respuesta = model.generate_content(f"{contexto}\nPregunta: {prompt}").text
-                st.markdown(respuesta)
-                st.session_state.mensajes_ia.append({"role": "assistant", "content": respuesta})
-            except Exception as e:
-                st.error(f"⚠️ Error exacto de Google: {e}")
-else:
-    st.warning("⚠️ No has configurado la API Key en Streamlit Secrets.")
+        for msg in st.session_state.mensajes_ia:
+            with st.chat_message(msg["role"]):
+                st.markdown(msg["content"])
+
+        if prompt := st.chat_input("Pregúntame sobre tu operativa (ej: ¿Cómo mejorar mi Profit Factor?)..."):
+            st.session_state.mensajes_ia.append({"role": "user", "content": prompt})
+            with st.chat_message("user"):
+                st.markdown(prompt)
+
+            with st.chat_message("assistant"):
+                try:
+                    # Le pasamos el súper contexto de forma invisible en cada pregunta
+                    respuesta = model.generate_content(f"{contexto}\n\nPregunta de la trader: {prompt}").text
+                    st.markdown(respuesta)
+                    st.session_state.mensajes_ia.append({"role": "assistant", "content": respuesta})
+                except Exception as e:
+                    st.error(f"⚠️ Error exacto de Google: {e}")
+    else:
+        st.warning("⚠️ No has configurado la API Key en Streamlit Secrets.")
