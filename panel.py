@@ -621,3 +621,39 @@ try:
 
 except Exception as e:
     st.error(f"⚠️ ¡Vaya! Ha ocurrido un error: {e}")
+
+# ==========================================
+# 🤖 ASISTENTE DE TRADING IA (CEREBRO CUANTITATIVO)
+# ==========================================
+import google.generativeai as genai
+
+st.markdown("---")
+st.markdown("### 🧠 Tu Asistente de Trading Institucional")
+
+if "GOOGLE_API_KEY" in st.secrets:
+    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+    model = genai.GenerativeModel('gemini-1.5-flash')
+
+    contexto = f"Actúa como mi gestor de riesgo. Mis datos: Win Rate {win_rate:.1f}%, Profit Factor {profit_factor:.2f}, Beneficio ${beneficio_total:,.2f}."
+
+    if "mensajes_ia" not in st.session_state:
+        st.session_state.mensajes_ia = []
+
+    for msg in st.session_state.mensajes_ia:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
+
+    if prompt := st.chat_input("Pregúntame sobre tu operativa..."):
+        st.session_state.mensajes_ia.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+
+        with st.chat_message("assistant"):
+            try:
+                respuesta = model.generate_content(f"{contexto}\nPregunta: {prompt}").text
+                st.markdown(respuesta)
+                st.session_state.mensajes_ia.append({"role": "assistant", "content": respuesta})
+            except Exception as e:
+                st.error("Error al conectar con la IA. Revisa tu API Key.")
+else:
+    st.warning("⚠️ No has configurado la API Key en Streamlit Secrets.")
