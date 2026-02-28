@@ -9,35 +9,60 @@ import os
 import warnings
 warnings.filterwarnings('ignore')
 
+# ==========================================
+# 🔌 CONFIGURACIÓN MULTI-CUENTA GOOGLE DRIVE
+# ==========================================
+# Aquí están los IDs de tus dos cuentas de fondeo
+IDS_DRIVE = [
+    "1NF17F0noOU2BudzSvPYNJWzKX88W1hNi", # Cuenta 1
+    "1hvx5_P2mVo0QUj1d-UABawK6yoOMLHnw"  # Cuenta 2
+]
+
 st.set_page_config(page_title="Pro Trading Journal", layout="wide", initial_sidebar_state="expanded")
 st.title("📊 Panel Cuantitativo Multi-Cuenta Institucional")
 
+# Función para descargar todas las cuentas y fusionarlas (Actualiza cada 10 min)
+@st.cache_data(ttl=600) 
+def cargar_datos_automaticos():
+    lista_dfs = []
+    for id_doc in IDS_DRIVE:
+        url = f'https://drive.google.com/uc?id={id_doc}'
+        try:
+            df_temp = pd.read_csv(url, encoding='latin1')
+            lista_dfs.append(df_temp)
+        except Exception as e:
+            pass # Si falla uno, intenta con el siguiente
+            
+    if lista_dfs:
+        return pd.concat(lista_dfs, ignore_index=True)
+    return None
+
 try:
     # ==========================================
-    # 0. SISTEMA DE CARPETAS (Diario)
+    # 0. SISTEMA DE CARPETAS (Diario Local)
     # ==========================================
     if not os.path.exists("Diario_Trading"): os.makedirs("Diario_Trading")
     if not os.path.exists("Diario_Trading/Screenshots"): os.makedirs("Diario_Trading/Screenshots")
 
     # ==========================================
-    # 1. CARGA SEGURA EN LA NUBE (DRAG & DROP)
+    # 1. CARGA AUTOMÁTICA
     # ==========================================
-    st.sidebar.markdown("### 📂 Carga de Datos Segura")
-    st.sidebar.write("Tus datos no se guardan en la nube. Privacidad 100% garantizada.")
-    archivos_subidos = st.sidebar.file_uploader("Arrastra aquí tus CSV de MetaTrader", type=['csv'], accept_multiple_files=True)
+    st.sidebar.markdown("### 🛰️ Estado de Conexión")
+    df_raw = cargar_datos_automaticos()
 
-    if not archivos_subidos:
-        st.info("👋 **¡Bienvenida a tu panel profesional en la nube!**\n\n👈 Por favor, **arrastra y suelta tus archivos CSV** en el menú de la izquierda para generar tu análisis institucional. (Puedes subir varios a la vez).")
+    if df_raw is None or df_raw.empty:
+        st.error("⚠️ **No se pudieron leer los archivos de Google Drive.**\nVerifica que los archivos estén configurados como 'Cualquier persona con el enlace' (Lector).")
         st.stop()
+    else:
+        st.sidebar.success("✅ Cuentas sincronizadas en tiempo real")
+        if st.sidebar.button("🔄 Forzar Actualización"):
+            st.cache_data.clear()
+            st.rerun()
 
-    for arch in archivos_subidos:
-        st.sidebar.success(f"Cargado: {arch.name}")
-
-    lista_dfs = [pd.read_csv(arch, encoding='latin1') for arch in archivos_subidos]
-    df = pd.concat(lista_dfs, ignore_index=True).drop_duplicates()
+    df = df_raw.drop_duplicates()
     
     if 'Cuenta' not in df.columns:
-        st.error("⚠️ Archivo inválido detectado.")
+        st.error("⚠️ Los archivos en Drive no tienen el formato correcto de MetaTrader.")
         st.stop()
 
     df['Cuenta'] = df['Cuenta'].astype(str).str.replace(".0", "", regex=False)
@@ -61,7 +86,7 @@ try:
         df = df[df['Cuenta'] == cuenta_seleccionada]
 
     # ==========================================
-    # 3. CAPITAL, RETIROS Y COSTES DE PRUEBAS
+    # 3. CAPITAL, RETIROS Y COSTES
     # ==========================================
     depositos_df = df[(df[col_simbolo].isna()) | (df[col_tipo].astype(str).str.lower() == 'balance')]
     balance_detectado = depositos_df[depositos_df[col_beneficio] > 0][col_beneficio].sum()
@@ -138,6 +163,8 @@ try:
     # 5. MATEMÁTICAS AVANZADAS (FILTRO MT5 INCLUIDO)
     # ==========================================
     df_trades = df[(df[col_simbolo].notna()) & (df[col_tipo].astype(str).str.lower() != 'balance')].copy()
+    
+    # Filtramos operaciones a cero (Entradas de MT5)
     df_trades = df_trades[df_trades[col_beneficio] != 0]
 
     if df_trades.empty:
@@ -190,7 +217,7 @@ try:
         riesgo_ruina = "Alto ⚠️"
 
     # ==========================================
-    # NUEVO: MÉTRICAS QUANTS INSTITUCIONALES
+    # MÉTRICAS QUANTS INSTITUCIONALES Y RADAR
     # ==========================================
     recovery_factor = beneficio_total / max_drawdown_dinero if max_drawdown_dinero > 0 else 0
     
