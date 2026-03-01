@@ -85,6 +85,28 @@ try:
     if cuenta_seleccionada != "Todas las Cuentas (Consolidado)":
         df = df[df['Cuenta'] == cuenta_seleccionada]
 
+    # --- 🛠️ TRADUCTOR DEL HISTORIAL MANUAL (MYFXBOOK) ---
+    # Unificamos las columnas del Excel copiado a mano con las de tu MT5
+    if 'Beneficio (USD)' in df.columns:
+        df[col_beneficio] = df[col_beneficio].fillna(pd.to_numeric(df['Beneficio (USD)'], errors='coerce'))
+    elif 'Beneficio' in df.columns:
+        df[col_beneficio] = df[col_beneficio].fillna(pd.to_numeric(df['Beneficio'], errors='coerce'))
+        
+    if 'Acción' in df.columns:
+        df[col_tipo] = df[col_tipo].fillna(df['Acción'])
+        
+    if 'Símbolo' in df.columns:
+        df[col_simbolo] = df[col_simbolo].fillna(df['Símbolo'])
+        
+    if 'Fecha de cierre' in df.columns:
+        df[col_fecha] = df[col_fecha].fillna(df['Fecha de cierre'])
+
+    # Traducimos Comprar/Vender al idioma interno de tu panel (buy/sell) para que las gráficas lo entiendan
+    if col_tipo in df.columns:
+        df[col_tipo] = df[col_tipo].astype(str).str.lower().replace({
+            'comprar': 'buy', 'vender': 'sell', 'buy': 'buy', 'sell': 'sell'
+        })
+    # --------------------------------------------------------
     # ==========================================
     # 3. CAPITAL, RETIROS Y COSTES
     # ==========================================
