@@ -70,17 +70,14 @@ try:
     col_fecha, col_simbolo, col_tipo, col_beneficio = df.columns[2], df.columns[3], df.columns[4], df.columns[6]
     col_volumen = df.columns[5]
 
-    df[col_beneficio] = pd.to_numeric(df[col_beneficio], errors='coerce')
-    df = df.dropna(subset=[col_beneficio])
-
     # --- 🛠️ TRADUCTOR DEL HISTORIAL MANUAL (MYFXBOOK) ---
-    # 1. Unificamos las columnas ANTES de crear el menú para que el panel lo detecte
+    # 1. Traducimos las columnas PRIMERO
     if 'Beneficio (USD)' in df.columns:
         df[col_beneficio] = df[col_beneficio].fillna(pd.to_numeric(df['Beneficio (USD)'], errors='coerce'))
-        # Bautizamos estas operaciones para que salgan con nombre en el menú
-        if 'Cuenta' not in df.columns:
-            df['Cuenta'] = None
-        df['Cuenta'] = df['Cuenta'].fillna('Historial_2_Años')
+        
+    if 'Cuenta' not in df.columns:
+        df['Cuenta'] = None
+    df['Cuenta'] = df['Cuenta'].fillna('Historial_2_Años')
         
     if 'Acción' in df.columns:
         df[col_tipo] = df[col_tipo].fillna(df['Acción'])
@@ -91,11 +88,14 @@ try:
     if 'Fecha de cierre' in df.columns:
         df[col_fecha] = df[col_fecha].fillna(df['Fecha de cierre'])
 
-    # Traducimos Comprar/Vender al idioma interno de tu panel (buy/sell)
     if col_tipo in df.columns:
         df[col_tipo] = df[col_tipo].astype(str).str.lower().replace({
             'comprar': 'buy', 'vender': 'sell', 'buy': 'buy', 'sell': 'sell'
         })
+
+    # 2. AHORA SÍ: Filtramos las que estén vacías (El "portero")
+    df[col_beneficio] = pd.to_numeric(df[col_beneficio], errors='coerce')
+    df = df.dropna(subset=[col_beneficio])
     # --------------------------------------------------------
 
     # ==========================================
