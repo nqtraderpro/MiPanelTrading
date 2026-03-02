@@ -14,9 +14,9 @@ warnings.filterwarnings('ignore')
 # ==========================================
 # Aquí están los IDs de tus dos cuentas de fondeo
 IDS_DRIVE = [
-    "1NF17F0noOU2BudzSvPYNJWzKX88W1hNi", # Cuenta 1
-    "1hvx5_P2mVo0QUj1d-UABawK6yoOMLHnw"  # Cuenta 2
-]
+        "14fNPPP9MtfEcCyn808lx-TV38bgfHcUW",
+        "1ZyJ9MkdzBSTTH1BkZ382CntmMx8X6p37"
+    ]
 
 st.set_page_config(page_title="Pro Trading Journal", layout="wide", initial_sidebar_state="expanded")
 st.title("📊 Panel Cuantitativo Multi-Cuenta Institucional")
