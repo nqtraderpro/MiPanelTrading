@@ -30,6 +30,8 @@ import plotly.express as px
 st.sidebar.markdown("---")
 modo_panel = st.sidebar.radio("🎯 Selecciona la Vista:", ["📊 Trading Cuantitativo", "🏆 Gestión de Fondeos"])
 
+import plotly.graph_objects as go
+
 if modo_panel == "🏆 Gestión de Fondeos":
     st.markdown("### 🏢 Mi Portfolio de Fondeos (Prop Firm Journey)")
     
@@ -40,27 +42,34 @@ if modo_panel == "🏆 Gestión de Fondeos":
     try:
         df_f = pd.read_csv(url_fondeos)
         
-        # Limpieza rápida de datos
+        # Limpieza de datos
         df_f['Fecha'] = pd.to_datetime(df_f['Fecha'], format='%d/%m/%Y', errors='coerce')
         df_f['Gasto'] = pd.to_numeric(df_f['Gasto'], errors='coerce').fillna(0)
         df_f['Beneficio'] = pd.to_numeric(df_f['Beneficio'], errors='coerce').fillna(0)
         df_f['Tamaño_Cuenta'] = pd.to_numeric(df_f['Tamaño_Cuenta'], errors='coerce').fillna(0)
         
-        # --- MATEMÁTICAS DEL EMBUDO ---
+        # --- MATEMÁTICAS DEL EMBUDO (KPIs) ---
         gastos_totales = df_f['Gasto'].sum()
         retiros_totales = df_f['Beneficio'].sum()
         pnl_neto = retiros_totales - gastos_totales
         
-        # Cuentas activas y suspensos
+        # Estados
         ultimos_estados = df_f.sort_values('Fecha').groupby('ID_Cuenta').last()
         fondeadas_activas = ultimos_estados[ultimos_estados['Tipo_Evento'] == 'Pase_Fase2']
         capital_actual = fondeadas_activas['Tamaño_Cuenta'].sum()
         
+        # Ratios de Éxito
         total_evaluaciones = len(df_f[df_f['Tipo_Evento'] == 'Compra'])
-        cuentas_suspendidas = len(df_f[df_f['Tipo_Evento'] == 'Suspenso'])
+        pases_f1 = len(df_f[df_f['Tipo_Evento'] == 'Pase_Fase1'])
+        pases_f2 = len(df_f[df_f['Tipo_Evento'] == 'Pase_Fase2'])
         num_retiros = len(df_f[df_f['Tipo_Evento'] == 'Retiro'])
         
-        # Color del PnL
+        tasa_f1 = (pases_f1 / total_evaluaciones * 100) if total_evaluaciones > 0 else 0
+        tasa_f2 = (pases_f2 / pases_f1 * 100) if pases_f1 > 0 else 0
+        tasa_fondeo = (pases_f2 / total_evaluaciones * 100) if total_evaluaciones > 0 else 0
+        tasa_retiro = (num_retiros / total_evaluaciones * 100) if total_evaluaciones > 0 else 0
+        
+        # Colores dinámicos
         pnl_color = "#28a745" if pnl_neto >= 0 else "#dc3545"
 
         # --- 2. DISEÑO CLONADO (MÉTRICAS PRINCIPALES) ---
@@ -85,61 +94,105 @@ if modo_panel == "🏆 Gestión de Fondeos":
         </div>
         """, unsafe_allow_html=True)
         
-        # --- SUB-MÉTRICAS (EL EMBUDO) ---
+        # --- SUB-MÉTRICAS (RATIOS Y EMBUDO AVANZADO) ---
         st.markdown(f"""
         <div style="display: flex; justify-content: space-between; text-align: center; margin-bottom: 30px;">
-            <div style="background-color: #ffffff; padding: 15px; border-radius: 4px; width: 24%; border: 1px solid #e0e0e0;">
-                <p style="color: #a0a0a0; font-size: 11px; margin:0;">Pruebas Compradas</p>
-                <h3 style="color: #555555; margin:0; font-size: 28px;">{total_evaluaciones}</h3>
+            <div style="background-color: #ffffff; padding: 10px; border-radius: 4px; width: 14%; border: 1px solid #e0e0e0;">
+                <p style="color: #a0a0a0; font-size: 11px; margin:0;">Pruebas Totales</p>
+                <h3 style="color: #555555; margin:0; font-size: 24px;">{total_evaluaciones}</h3>
             </div>
-            <div style="background-color: #ffffff; padding: 15px; border-radius: 4px; width: 24%; border: 1px solid #e0e0e0;">
-                <p style="color: #a0a0a0; font-size: 11px; margin:0;">Cuentas Fondeadas (Activas)</p>
-                <h3 style="color: #007bff; margin:0; font-size: 28px;">{len(fondeadas_activas)}</h3>
+            <div style="background-color: #ffffff; padding: 10px; border-radius: 4px; width: 14%; border: 1px solid #e0e0e0;">
+                <p style="color: #a0a0a0; font-size: 11px; margin:0;">Nº Retiros</p>
+                <h3 style="color: #28a745; margin:0; font-size: 24px;">{num_retiros}</h3>
             </div>
-            <div style="background-color: #ffffff; padding: 15px; border-radius: 4px; width: 24%; border: 1px solid #e0e0e0;">
-                <p style="color: #a0a0a0; font-size: 11px; margin:0;">Cuentas Suspendidas</p>
-                <h3 style="color: #dc3545; margin:0; font-size: 28px;">{cuentas_suspendidas}</h3>
+            <div style="background-color: #ffffff; padding: 10px; border-radius: 4px; width: 16%; border: 1px solid #e0e0e0;">
+                <p style="color: #a0a0a0; font-size: 11px; margin:0;">% Pase Fase 1</p>
+                <h3 style="color: #888888; margin:0; font-size: 24px;">{tasa_f1:.1f}%</h3>
             </div>
-            <div style="background-color: #ffffff; padding: 15px; border-radius: 4px; width: 24%; border: 1px solid #e0e0e0;">
-                <p style="color: #a0a0a0; font-size: 11px; margin:0;">Nº de Retiros</p>
-                <h3 style="color: #28a745; margin:0; font-size: 28px;">{num_retiros}</h3>
+            <div style="background-color: #ffffff; padding: 10px; border-radius: 4px; width: 16%; border: 1px solid #e0e0e0;">
+                <p style="color: #a0a0a0; font-size: 11px; margin:0;">% Pase Fase 2</p>
+                <h3 style="color: #888888; margin:0; font-size: 24px;">{tasa_f2:.1f}%</h3>
+            </div>
+            <div style="background-color: #ffffff; padding: 10px; border-radius: 4px; width: 16%; border: 1px solid #e0e0e0;">
+                <p style="color: #a0a0a0; font-size: 11px; margin:0;">% Llegan a Fondeo</p>
+                <h3 style="color: #007bff; margin:0; font-size: 24px;">{tasa_fondeo:.1f}%</h3>
+            </div>
+            <div style="background-color: #ffffff; padding: 10px; border-radius: 4px; width: 16%; border: 1px solid #e0e0e0;">
+                <p style="color: #a0a0a0; font-size: 11px; margin:0;">% Llegan a Cobrar</p>
+                <h3 style="color: #28a745; margin:0; font-size: 24px;">{tasa_retiro:.1f}%</h3>
             </div>
         </div>
         """, unsafe_allow_html=True)
         
-        # --- 3. GRÁFICOS INSTITUCIONALES ---
+        # --- 3. GRÁFICOS INSTITUCIONALES (FILA 1) ---
+        st.markdown("---")
         col1, col2, col3 = st.columns([1.2, 1.5, 1])
         
         with col1:
             st.markdown("###### 📜 Historial de Eventos")
-            # Mostramos la tabla limpia
-            st.dataframe(df_f[['Fecha', 'Tipo_Evento', 'Tamaño_Cuenta', 'Empresa', 'Beneficio']], use_container_width=True, hide_index=True)
+            st.dataframe(df_f[['Fecha', 'Tipo_Evento', 'Tamaño_Cuenta', 'Empresa', 'Gasto', 'Beneficio']].sort_values('Fecha', ascending=False), use_container_width=True, hide_index=True, height=250)
             
         with col2:
             st.markdown("###### 📈 Curva de PnL (Beneficio Neto)")
-            # Calculamos el PnL Acumulado en el tiempo
             df_pnl = df_f.sort_values('Fecha').copy()
             df_pnl['Flujo'] = df_pnl['Beneficio'] - df_pnl['Gasto']
             df_pnl['PnL_Acumulado'] = df_pnl['Flujo'].cumsum()
-            
             fig_pnl = px.line(df_pnl, x='Fecha', y='PnL_Acumulado', markers=True, template="simple_white")
             fig_pnl.update_traces(line_color='#007bff', line_width=3, marker_size=8)
-            fig_pnl.update_layout(margin=dict(l=0, r=0, t=30, b=0), height=300, yaxis_title="USD", xaxis_title="")
+            fig_pnl.update_layout(margin=dict(l=0, r=0, t=10, b=0), height=250, yaxis_title="USD", xaxis_title="")
             st.plotly_chart(fig_pnl, use_container_width=True)
             
         with col3:
-            st.markdown("###### 🍩 Cuentas por Tamaño")
+            st.markdown("###### 🍩 Evaluaciones por Tamaño")
             df_compras = df_f[df_f['Tipo_Evento'] == 'Compra']
             if not df_compras.empty:
                 fig_donut = px.pie(df_compras, names='Tamaño_Cuenta', hole=0.6, template="simple_white")
                 fig_donut.update_traces(textinfo='percent+label')
-                fig_donut.update_layout(margin=dict(l=0, r=0, t=30, b=0), height=300, showlegend=False)
+                fig_donut.update_layout(margin=dict(l=0, r=0, t=10, b=0), height=250, showlegend=False)
                 st.plotly_chart(fig_donut, use_container_width=True)
             else:
                 st.info("Sin datos suficientes.")
 
+        # --- 4. GRÁFICOS INSTITUCIONALES (FILA 2 - RENDIMIENTO POR EMPRESA) ---
+        st.markdown("---")
+        col4, col5 = st.columns(2)
+
+        with col4:
+            st.markdown("###### ⚖️ Gastos vs Retiros por Prop Firm")
+            df_grouped = df_f.groupby('Empresa')[['Gasto', 'Beneficio']].sum().reset_index()
+            df_grouped['Gasto_Negativo'] = -df_grouped['Gasto'] # Lo hacemos negativo para el gráfico
+            
+            fig_bar = go.Figure()
+            fig_bar.add_trace(go.Bar(y=df_grouped['Empresa'], x=df_grouped['Gasto_Negativo'], name='Gasto en Pruebas', orientation='h', marker_color='#dc3545'))
+            fig_bar.add_trace(go.Bar(y=df_grouped['Empresa'], x=df_grouped['Beneficio'], name='Retiros', orientation='h', marker_color='#007bff'))
+            fig_bar.update_layout(barmode='relative', template="simple_white", margin=dict(l=0, r=0, t=10, b=0), height=300, legend=dict(orientation="h", ybottom=-0.2))
+            st.plotly_chart(fig_bar, use_container_width=True)
+
+        with col5:
+            st.markdown("###### 🎯 Fase Alcanzada por Empresa (%)")
+            # Filtramos solo eventos clave para saber hasta dónde llega cada cuenta
+            eventos_clave = ['Compra', 'Pase_Fase1', 'Pase_Fase2', 'Retiro']
+            df_fases = df_f[df_f['Tipo_Evento'].isin(eventos_clave)]
+            
+            if not df_fases.empty:
+                fase_maxima = df_fases.groupby(['Empresa', 'ID_Cuenta'])['Tipo_Evento'].apply(
+                    lambda x: 'Fondeado/Retiro' if ('Pase_Fase2' in x.values or 'Retiro' in x.values) else ('Fase 2' if 'Pase_Fase1' in x.values else 'Fase 1')
+                ).reset_index()
+                
+                resumen_fases = fase_maxima.groupby(['Empresa', 'Tipo_Evento']).size().reset_index(name='Cantidad')
+                
+                fig_stack = px.bar(resumen_fases, y="Empresa", x="Cantidad", color="Tipo_Evento", orientation='h', 
+                                   color_discrete_map={'Fase 1': '#a0c4ff', 'Fase 2': '#4a90e2', 'Fondeado/Retiro': '#003366'}, 
+                                   template="simple_white")
+                # Lo convertimos a porcentaje 100% stack
+                fig_stack.update_layout(barmode='stack', barnorm='percent', margin=dict(l=0, r=0, t=10, b=0), height=300, legend_title="", legend=dict(orientation="h", ybottom=-0.2))
+                fig_stack.update_xaxes(title_text="% Alcanzado")
+                st.plotly_chart(fig_stack, use_container_width=True)
+            else:
+                st.info("Registra compras y pases de fase para ver este gráfico.")
+
     except Exception as e:
-        st.warning("⚠️ Esperando conexión con el archivo Diario_Fondeos.csv en Drive...")
+        st.warning(f"⚠️ Esperando conexión o datos en el Excel... (Error: {e})")
         
     st.stop()
 # =========================================================
