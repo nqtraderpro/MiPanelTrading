@@ -207,7 +207,8 @@ if modo_panel == "🏆 Gestión de Fondeos":
 def cargar_datos_automaticos():
     lista_dfs = []
     for id_doc in IDS_DRIVE:
-        url = f'https://drive.google.com/uc?id={id_doc}'
+        import time
+            url = f'https://drive.google.com/uc?id={id_doc}&t={time.time()}'
         try:
             df_temp = pd.read_csv(url, encoding='latin1')
             lista_dfs.append(df_temp)
