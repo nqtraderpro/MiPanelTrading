@@ -21,6 +21,84 @@ IDS_DRIVE = [
 st.set_page_config(page_title="Pro Trading Journal", layout="wide", initial_sidebar_state="expanded")
 st.title("📊 Panel Cuantitativo Multi-Cuenta Institucional")
 
+
+# =========================================================
+# 🏆 INTERRUPTOR: MODO FONDEOS VS MODO TRADING
+# =========================================================
+import plotly.express as px
+
+st.sidebar.markdown("---")
+modo_panel = st.sidebar.radio("🎯 Selecciona la Vista:", ["📊 Trading Cuantitativo", "🏆 Gestión de Fondeos"])
+
+if modo_panel == "🏆 Gestión de Fondeos":
+    st.markdown("### 🏢 Prop Firm Journey")
+    
+    # --- 1. CONEXIÓN AL EXCEL DE FONDEOS ---
+    ID_FONDEOS = "https://drive.google.com/file/d/1ZyKT6ESVnSDrJKdF4aejy2TK0mDrpTOj/view?usp=sharing"  # <--- PEGA TU ID ENTRE LAS COMILLAS
+    url_fondeos = f'https://drive.google.com/uc?id={ID_FONDEOS}'
+    
+    try:
+        df_f = pd.read_csv(url_fondeos)
+        
+        # Limpieza rápida de números
+        df_f['Gasto'] = pd.to_numeric(df_f['Gasto'], errors='coerce').fillna(0)
+        df_f['Beneficio'] = pd.to_numeric(df_f['Beneficio'], errors='coerce').fillna(0)
+        df_f['Tamaño_Cuenta'] = pd.to_numeric(df_f['Tamaño_Cuenta'], errors='coerce').fillna(0)
+        
+        # Matemáticas Financieras
+        gastos_totales = df_f['Gasto'].sum()
+        retiros_totales = df_f['Beneficio'].sum()
+        pnl_neto = retiros_totales - gastos_totales
+        
+        # Cuentas activas
+        ultimos_estados = df_f.sort_values('Fecha').groupby('ID_Cuenta').last()
+        fondeadas_activas = ultimos_estados[ultimos_estados['Tipo_Evento'] == 'Pase_Fase2']
+        capital_actual = fondeadas_activas['Tamaño_Cuenta'].sum()
+        
+        # --- 2. DISEÑO CLONADO DE EXPLORATORY.IO (TARJETAS) ---
+        st.markdown(f"""
+        <div style="display: flex; justify-content: space-between; text-align: center; margin-bottom: 20px;">
+            <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; width: 23%; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <p style="color: #6c757d; font-size: 14px; margin:0; font-weight: bold;">Current Funded Amount</p>
+                <h2 style="color: #212529; margin:0; font-size: 32px;">${capital_actual:,.0f}</h2>
+            </div>
+            <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; width: 23%; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <p style="color: #6c757d; font-size: 14px; margin:0; font-weight: bold;">All-Time Total Payouts</p>
+                <h2 style="color: #007bff; margin:0; font-size: 32px;">${retiros_totales:,.2f}</h2>
+            </div>
+            <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; width: 23%; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <p style="color: #6c757d; font-size: 14px; margin:0; font-weight: bold;">Money Spent on Challenge Fees</p>
+                <h2 style="color: #dc3545; margin:0; font-size: 32px;">-${gastos_totales:,.2f}</h2>
+            </div>
+            <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; width: 23%; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <p style="color: #6c757d; font-size: 14px; margin:0; font-weight: bold;">Current PnL ($)</p>
+                <h2 style="color: #28a745; margin:0; font-size: 32px;">${pnl_neto:,.2f}</h2>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # --- 3. GRÁFICOS ANALÍTICOS ---
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("**Registro de Eventos (Historial)**")
+            st.dataframe(df_f[['Fecha', 'Tipo_Evento', 'Tamaño_Cuenta', 'Gasto', 'Empresa']], use_container_width=True, hide_index=True)
+            
+        with col2:
+            df_retiros = df_f[df_f['Tipo_Evento'] == 'Retiro']
+            if not df_retiros.empty:
+                fig = px.bar(df_retiros, x='Empresa', y='Beneficio', title="Payouts By Prop Firm", color='Empresa', text_auto='.2s')
+                st.plotly_chart(fig, use_container_width=True)
+            else:
+                st.info("Aún no hay retiros registrados para graficar.")
+                
+    except Exception as e:
+        st.warning("⚠️ Esperando conexión con el archivo Diario_Fondeos.csv en Drive...")
+        
+    # EL TRUCO DE MAGIA: Si estamos en modo Fondeos, detenemos el código aquí para que no cargue el panel antiguo
+    st.stop() 
+# =========================================================
+# (El resto de tu código original sigue aquí abajo, intacto)
 # Función para descargar todas las cuentas y fusionarlas (Actualiza cada 10 min)
 @st.cache_data(ttl=600) 
 def cargar_datos_automaticos():
