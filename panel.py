@@ -31,72 +31,117 @@ st.sidebar.markdown("---")
 modo_panel = st.sidebar.radio("🎯 Selecciona la Vista:", ["📊 Trading Cuantitativo", "🏆 Gestión de Fondeos"])
 
 if modo_panel == "🏆 Gestión de Fondeos":
-    st.markdown("### 🏢 Prop Firm Journey")
+    st.markdown("### 🏢 Mi Portfolio de Fondeos (Prop Firm Journey)")
     
     # --- 1. CONEXIÓN AL EXCEL DE FONDEOS ---
-    ID_FONDEOS = "1ZyKT6ESVnSDrJKdF4aejy2TK0mDrpTOj"
+    ID_FONDEOS = "AQUI_PEGA_TU_ID"  # <--- ¡NO OLVIDES PONER TU ID AQUÍ!
     url_fondeos = f'https://drive.google.com/uc?id={ID_FONDEOS}'
     
     try:
         df_f = pd.read_csv(url_fondeos)
         
-        # Limpieza rápida de números
+        # Limpieza rápida de datos
+        df_f['Fecha'] = pd.to_datetime(df_f['Fecha'], format='%d/%m/%Y', errors='coerce')
         df_f['Gasto'] = pd.to_numeric(df_f['Gasto'], errors='coerce').fillna(0)
         df_f['Beneficio'] = pd.to_numeric(df_f['Beneficio'], errors='coerce').fillna(0)
         df_f['Tamaño_Cuenta'] = pd.to_numeric(df_f['Tamaño_Cuenta'], errors='coerce').fillna(0)
         
-        # Matemáticas Financieras
+        # --- MATEMÁTICAS DEL EMBUDO ---
         gastos_totales = df_f['Gasto'].sum()
         retiros_totales = df_f['Beneficio'].sum()
         pnl_neto = retiros_totales - gastos_totales
         
-        # Cuentas activas
+        # Cuentas activas y suspensos
         ultimos_estados = df_f.sort_values('Fecha').groupby('ID_Cuenta').last()
         fondeadas_activas = ultimos_estados[ultimos_estados['Tipo_Evento'] == 'Pase_Fase2']
         capital_actual = fondeadas_activas['Tamaño_Cuenta'].sum()
         
-        # --- 2. DISEÑO CLONADO DE EXPLORATORY.IO (TARJETAS) ---
+        total_evaluaciones = len(df_f[df_f['Tipo_Evento'] == 'Compra'])
+        cuentas_suspendidas = len(df_f[df_f['Tipo_Evento'] == 'Suspenso'])
+        num_retiros = len(df_f[df_f['Tipo_Evento'] == 'Retiro'])
+        
+        # Color del PnL
+        pnl_color = "#28a745" if pnl_neto >= 0 else "#dc3545"
+
+        # --- 2. DISEÑO CLONADO (MÉTRICAS PRINCIPALES) ---
         st.markdown(f"""
-        <div style="display: flex; justify-content: space-between; text-align: center; margin-bottom: 20px;">
-            <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; width: 23%; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                <p style="color: #6c757d; font-size: 14px; margin:0; font-weight: bold;">Current Funded Amount</p>
-                <h2 style="color: #212529; margin:0; font-size: 32px;">${capital_actual:,.0f}</h2>
+        <div style="display: flex; justify-content: space-between; text-align: center; margin-bottom: 15px;">
+            <div style="background-color: #ffffff; padding: 20px; border-radius: 4px; width: 24%; border: 1px solid #e0e0e0;">
+                <p style="color: #6c757d; font-size: 13px; margin:0; text-transform: uppercase;">Capital Fondeado Actual</p>
+                <h2 style="color: #333333; margin:0; font-size: 36px; font-weight: bold;">${capital_actual:,.0f}</h2>
             </div>
-            <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; width: 23%; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                <p style="color: #6c757d; font-size: 14px; margin:0; font-weight: bold;">All-Time Total Payouts</p>
-                <h2 style="color: #007bff; margin:0; font-size: 32px;">${retiros_totales:,.2f}</h2>
+            <div style="background-color: #ffffff; padding: 20px; border-radius: 4px; width: 24%; border: 1px solid #e0e0e0;">
+                <p style="color: #6c757d; font-size: 13px; margin:0; text-transform: uppercase;">Retiros Totales</p>
+                <h2 style="color: #007bff; margin:0; font-size: 36px; font-weight: bold;">${retiros_totales:,.2f}</h2>
             </div>
-            <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; width: 23%; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                <p style="color: #6c757d; font-size: 14px; margin:0; font-weight: bold;">Money Spent on Challenge Fees</p>
-                <h2 style="color: #dc3545; margin:0; font-size: 32px;">-${gastos_totales:,.2f}</h2>
+            <div style="background-color: #ffffff; padding: 20px; border-radius: 4px; width: 24%; border: 1px solid #e0e0e0;">
+                <p style="color: #6c757d; font-size: 13px; margin:0; text-transform: uppercase;">Gasto en Pruebas</p>
+                <h2 style="color: #dc3545; margin:0; font-size: 36px; font-weight: bold;">-${gastos_totales:,.2f}</h2>
             </div>
-            <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; width: 23%; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                <p style="color: #6c757d; font-size: 14px; margin:0; font-weight: bold;">Current PnL ($)</p>
-                <h2 style="color: #28a745; margin:0; font-size: 32px;">${pnl_neto:,.2f}</h2>
+            <div style="background-color: #ffffff; padding: 20px; border-radius: 4px; width: 24%; border: 1px solid #e0e0e0;">
+                <p style="color: #6c757d; font-size: 13px; margin:0; text-transform: uppercase;">Beneficio Neto (PnL)</p>
+                <h2 style="color: {pnl_color}; margin:0; font-size: 36px; font-weight: bold;">${pnl_neto:,.2f}</h2>
             </div>
         </div>
         """, unsafe_allow_html=True)
         
-        # --- 3. GRÁFICOS ANALÍTICOS ---
-        col1, col2 = st.columns(2)
+        # --- SUB-MÉTRICAS (EL EMBUDO) ---
+        st.markdown(f"""
+        <div style="display: flex; justify-content: space-between; text-align: center; margin-bottom: 30px;">
+            <div style="background-color: #ffffff; padding: 15px; border-radius: 4px; width: 24%; border: 1px solid #e0e0e0;">
+                <p style="color: #a0a0a0; font-size: 11px; margin:0;">Pruebas Compradas</p>
+                <h3 style="color: #555555; margin:0; font-size: 28px;">{total_evaluaciones}</h3>
+            </div>
+            <div style="background-color: #ffffff; padding: 15px; border-radius: 4px; width: 24%; border: 1px solid #e0e0e0;">
+                <p style="color: #a0a0a0; font-size: 11px; margin:0;">Cuentas Fondeadas (Activas)</p>
+                <h3 style="color: #007bff; margin:0; font-size: 28px;">{len(fondeadas_activas)}</h3>
+            </div>
+            <div style="background-color: #ffffff; padding: 15px; border-radius: 4px; width: 24%; border: 1px solid #e0e0e0;">
+                <p style="color: #a0a0a0; font-size: 11px; margin:0;">Cuentas Suspendidas</p>
+                <h3 style="color: #dc3545; margin:0; font-size: 28px;">{cuentas_suspendidas}</h3>
+            </div>
+            <div style="background-color: #ffffff; padding: 15px; border-radius: 4px; width: 24%; border: 1px solid #e0e0e0;">
+                <p style="color: #a0a0a0; font-size: 11px; margin:0;">Nº de Retiros</p>
+                <h3 style="color: #28a745; margin:0; font-size: 28px;">{num_retiros}</h3>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # --- 3. GRÁFICOS INSTITUCIONALES ---
+        col1, col2, col3 = st.columns([1.2, 1.5, 1])
         
         with col1:
-            st.markdown("**Registro de Eventos (Historial)**")
-            st.dataframe(df_f[['Fecha', 'Tipo_Evento', 'Tamaño_Cuenta', 'Gasto', 'Empresa']], use_container_width=True, hide_index=True)
+            st.markdown("###### 📜 Historial de Eventos")
+            # Mostramos la tabla limpia
+            st.dataframe(df_f[['Fecha', 'Tipo_Evento', 'Tamaño_Cuenta', 'Empresa', 'Beneficio']], use_container_width=True, hide_index=True)
             
         with col2:
-            df_retiros = df_f[df_f['Tipo_Evento'] == 'Retiro']
-            if not df_retiros.empty:
-                fig = px.bar(df_retiros, x='Empresa', y='Beneficio', title="Payouts By Prop Firm", color='Empresa', text_auto='.2s')
-                st.plotly_chart(fig, use_container_width=True)
+            st.markdown("###### 📈 Curva de PnL (Beneficio Neto)")
+            # Calculamos el PnL Acumulado en el tiempo
+            df_pnl = df_f.sort_values('Fecha').copy()
+            df_pnl['Flujo'] = df_pnl['Beneficio'] - df_pnl['Gasto']
+            df_pnl['PnL_Acumulado'] = df_pnl['Flujo'].cumsum()
+            
+            fig_pnl = px.line(df_pnl, x='Fecha', y='PnL_Acumulado', markers=True, template="simple_white")
+            fig_pnl.update_traces(line_color='#007bff', line_width=3, marker_size=8)
+            fig_pnl.update_layout(margin=dict(l=0, r=0, t=30, b=0), height=300, yaxis_title="USD", xaxis_title="")
+            st.plotly_chart(fig_pnl, use_container_width=True)
+            
+        with col3:
+            st.markdown("###### 🍩 Cuentas por Tamaño")
+            df_compras = df_f[df_f['Tipo_Evento'] == 'Compra']
+            if not df_compras.empty:
+                fig_donut = px.pie(df_compras, names='Tamaño_Cuenta', hole=0.6, template="simple_white")
+                fig_donut.update_traces(textinfo='percent+label')
+                fig_donut.update_layout(margin=dict(l=0, r=0, t=30, b=0), height=300, showlegend=False)
+                st.plotly_chart(fig_donut, use_container_width=True)
             else:
-                st.info("Aún no hay retiros registrados para graficar.")
-                
+                st.info("Sin datos suficientes.")
+
     except Exception as e:
         st.warning("⚠️ Esperando conexión con el archivo Diario_Fondeos.csv en Drive...")
         
-    # EL TRUCO DE MAGIA: Si estamos en modo Fondeos, detenemos el código aquí para que no cargue el panel antiguo
-    st.stop() 
+    st.stop()
 # =========================================================
 # (El resto de tu código original sigue aquí abajo, intacto)
 # Función para descargar todas las cuentas y fusionarlas (Actualiza cada 10 min)
