@@ -32,6 +32,8 @@ modo_panel = st.sidebar.radio("🎯 Selecciona la Vista:", ["📊 Trading Cuanti
 
 import plotly.graph_objects as go
 
+import plotly.graph_objects as go
+
 if modo_panel == "🏆 Gestión de Fondeos":
     st.markdown("### 🏢 Mi Portfolio de Fondeos (Prop Firm Journey)")
     
@@ -53,21 +55,23 @@ if modo_panel == "🏆 Gestión de Fondeos":
         retiros_totales = df_f['Beneficio'].sum()
         pnl_neto = retiros_totales - gastos_totales
         
-        # Estados
+        # Estados (Detecta Fondeadas si el último evento fue 'Fondeado' o 'Retiro')
         ultimos_estados = df_f.sort_values('Fecha').groupby('ID_Cuenta').last()
-        fondeadas_activas = ultimos_estados[ultimos_estados['Tipo_Evento'] == 'Pase_Fase2']
+        fondeadas_activas = ultimos_estados[ultimos_estados['Tipo_Evento'].isin(['Fondeado', 'Retiro'])]
         capital_actual = fondeadas_activas['Tamaño_Cuenta'].sum()
         
-        # Ratios de Éxito
-        total_evaluaciones = len(df_f[df_f['Tipo_Evento'] == 'Compra'])
-        pases_f1 = len(df_f[df_f['Tipo_Evento'] == 'Pase_Fase1'])
-        pases_f2 = len(df_f[df_f['Tipo_Evento'] == 'Pase_Fase2'])
-        num_retiros = len(df_f[df_f['Tipo_Evento'] == 'Retiro'])
+        # Ratios de Éxito (Basado en cuentas únicas para no inflar % si hay varios retiros)
+        total_evaluaciones = df_f[df_f['Tipo_Evento'] == 'Compra']['ID_Cuenta'].nunique()
+        cuentas_f1 = df_f[df_f['Tipo_Evento'] == 'Pase_Fase1']['ID_Cuenta'].nunique()
+        cuentas_f2 = df_f[df_f['Tipo_Evento'] == 'Pase_Fase2']['ID_Cuenta'].nunique()
+        cuentas_fondeadas = df_f[df_f['Tipo_Evento'] == 'Fondeado']['ID_Cuenta'].nunique()
+        cuentas_retiro = df_f[df_f['Tipo_Evento'] == 'Retiro']['ID_Cuenta'].nunique()
+        num_retiros = len(df_f[df_f['Tipo_Evento'] == 'Retiro']) # Total de retiros históricos
         
-        tasa_f1 = (pases_f1 / total_evaluaciones * 100) if total_evaluaciones > 0 else 0
-        tasa_f2 = (pases_f2 / pases_f1 * 100) if pases_f1 > 0 else 0
-        tasa_fondeo = (pases_f2 / total_evaluaciones * 100) if total_evaluaciones > 0 else 0
-        tasa_retiro = (num_retiros / total_evaluaciones * 100) if total_evaluaciones > 0 else 0
+        tasa_f1 = (cuentas_f1 / total_evaluaciones * 100) if total_evaluaciones > 0 else 0
+        tasa_f2 = (cuentas_f2 / total_evaluaciones * 100) if total_evaluaciones > 0 else 0 
+        tasa_fondeo = (cuentas_fondeadas / total_evaluaciones * 100) if total_evaluaciones > 0 else 0
+        tasa_retiro = (cuentas_retiro / total_evaluaciones * 100) if total_evaluaciones > 0 else 0
         
         # Colores dinámicos
         pnl_color = "#28a745" if pnl_neto >= 0 else "#dc3545"
@@ -98,19 +102,19 @@ if modo_panel == "🏆 Gestión de Fondeos":
         st.markdown(f"""
         <div style="display: flex; justify-content: space-between; text-align: center; margin-bottom: 30px;">
             <div style="background-color: #ffffff; padding: 10px; border-radius: 4px; width: 14%; border: 1px solid #e0e0e0;">
-                <p style="color: #a0a0a0; font-size: 11px; margin:0;">Pruebas Totales</p>
+                <p style="color: #a0a0a0; font-size: 11px; margin:0;">Cuentas Compradas</p>
                 <h3 style="color: #555555; margin:0; font-size: 24px;">{total_evaluaciones}</h3>
             </div>
             <div style="background-color: #ffffff; padding: 10px; border-radius: 4px; width: 14%; border: 1px solid #e0e0e0;">
-                <p style="color: #a0a0a0; font-size: 11px; margin:0;">Nº Retiros</p>
+                <p style="color: #a0a0a0; font-size: 11px; margin:0;">Nº Payouts</p>
                 <h3 style="color: #28a745; margin:0; font-size: 24px;">{num_retiros}</h3>
             </div>
             <div style="background-color: #ffffff; padding: 10px; border-radius: 4px; width: 16%; border: 1px solid #e0e0e0;">
-                <p style="color: #a0a0a0; font-size: 11px; margin:0;">% Pase Fase 1</p>
+                <p style="color: #a0a0a0; font-size: 11px; margin:0;">% Aprueba Fase 1</p>
                 <h3 style="color: #888888; margin:0; font-size: 24px;">{tasa_f1:.1f}%</h3>
             </div>
             <div style="background-color: #ffffff; padding: 10px; border-radius: 4px; width: 16%; border: 1px solid #e0e0e0;">
-                <p style="color: #a0a0a0; font-size: 11px; margin:0;">% Pase Fase 2</p>
+                <p style="color: #a0a0a0; font-size: 11px; margin:0;">% Aprueba Fase 2</p>
                 <h3 style="color: #888888; margin:0; font-size: 24px;">{tasa_f2:.1f}%</h3>
             </div>
             <div style="background-color: #ffffff; padding: 10px; border-radius: 4px; width: 16%; border: 1px solid #e0e0e0;">
@@ -160,7 +164,7 @@ if modo_panel == "🏆 Gestión de Fondeos":
         with col4:
             st.markdown("###### ⚖️ Gastos vs Retiros por Prop Firm")
             df_grouped = df_f.groupby('Empresa')[['Gasto', 'Beneficio']].sum().reset_index()
-            df_grouped['Gasto_Negativo'] = -df_grouped['Gasto'] # Lo hacemos negativo para el gráfico
+            df_grouped['Gasto_Negativo'] = -df_grouped['Gasto'] 
             
             fig_bar = go.Figure()
             fig_bar.add_trace(go.Bar(y=df_grouped['Empresa'], x=df_grouped['Gasto_Negativo'], name='Gasto en Pruebas', orientation='h', marker_color='#dc3545'))
@@ -170,21 +174,22 @@ if modo_panel == "🏆 Gestión de Fondeos":
 
         with col5:
             st.markdown("###### 🎯 Fase Alcanzada por Empresa (%)")
-            # Filtramos solo eventos clave para saber hasta dónde llega cada cuenta
-            eventos_clave = ['Compra', 'Pase_Fase1', 'Pase_Fase2', 'Retiro']
+            eventos_clave = ['Compra', 'Pase_Fase1', 'Pase_Fase2', 'Fondeado', 'Retiro']
             df_fases = df_f[df_f['Tipo_Evento'].isin(eventos_clave)]
             
             if not df_fases.empty:
+                # Lógica para determinar el máximo estado alcanzado por cada cuenta
                 fase_maxima = df_fases.groupby(['Empresa', 'ID_Cuenta'])['Tipo_Evento'].apply(
-                    lambda x: 'Fondeado/Retiro' if ('Pase_Fase2' in x.values or 'Retiro' in x.values) else ('Fase 2' if 'Pase_Fase1' in x.values else 'Fase 1')
+                    lambda x: 'Fondeada/Retiro' if ('Fondeado' in x.values or 'Retiro' in x.values) 
+                    else ('Fase 3 (Verificación)' if 'Pase_Fase2' in x.values 
+                    else ('Fase 2' if 'Pase_Fase1' in x.values else 'Fase 1'))
                 ).reset_index()
                 
                 resumen_fases = fase_maxima.groupby(['Empresa', 'Tipo_Evento']).size().reset_index(name='Cantidad')
                 
                 fig_stack = px.bar(resumen_fases, y="Empresa", x="Cantidad", color="Tipo_Evento", orientation='h', 
-                                   color_discrete_map={'Fase 1': '#a0c4ff', 'Fase 2': '#4a90e2', 'Fondeado/Retiro': '#003366'}, 
+                                   color_discrete_map={'Fase 1': '#a0c4ff', 'Fase 2': '#4a90e2', 'Fase 3 (Verificación)': '#005bb5', 'Fondeada/Retiro': '#003366'}, 
                                    template="simple_white")
-                # Lo convertimos a porcentaje 100% stack
                 fig_stack.update_layout(barmode='stack', barnorm='percent', margin=dict(l=0, r=0, t=10, b=0), height=300, legend_title="", legend=dict(orientation="h", y=-0.2, yanchor="top"))
                 fig_stack.update_xaxes(title_text="% Alcanzado")
                 st.plotly_chart(fig_stack, use_container_width=True)
