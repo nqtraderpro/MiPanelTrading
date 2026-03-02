@@ -165,7 +165,7 @@ if modo_panel == "🏆 Gestión de Fondeos":
             fig_bar = go.Figure()
             fig_bar.add_trace(go.Bar(y=df_grouped['Empresa'], x=df_grouped['Gasto_Negativo'], name='Gasto en Pruebas', orientation='h', marker_color='#dc3545'))
             fig_bar.add_trace(go.Bar(y=df_grouped['Empresa'], x=df_grouped['Beneficio'], name='Retiros', orientation='h', marker_color='#007bff'))
-            fig_bar.update_layout(barmode='relative', template="simple_white", margin=dict(l=0, r=0, t=10, b=0), height=300, legend=dict(orientation="h", ybottom=-0.2))
+            fig_bar.update_layout(barmode='relative', template="simple_white", margin=dict(l=0, r=0, t=10, b=0), height=300, legend=dict(orientation="h", y=-0.2, yanchor="top"))
             st.plotly_chart(fig_bar, use_container_width=True)
 
         with col5:
@@ -185,7 +185,7 @@ if modo_panel == "🏆 Gestión de Fondeos":
                                    color_discrete_map={'Fase 1': '#a0c4ff', 'Fase 2': '#4a90e2', 'Fondeado/Retiro': '#003366'}, 
                                    template="simple_white")
                 # Lo convertimos a porcentaje 100% stack
-                fig_stack.update_layout(barmode='stack', barnorm='percent', margin=dict(l=0, r=0, t=10, b=0), height=300, legend_title="", legend=dict(orientation="h", ybottom=-0.2))
+                fig_stack.update_layout(barmode='stack', barnorm='percent', margin=dict(l=0, r=0, t=10, b=0), height=300, legend_title="", legend=dict(orientation="h", y=-0.2, yanchor="top"))
                 fig_stack.update_xaxes(title_text="% Alcanzado")
                 st.plotly_chart(fig_stack, use_container_width=True)
             else:
