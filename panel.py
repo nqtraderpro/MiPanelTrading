@@ -34,7 +34,7 @@ if modo_panel == "🏆 Gestión de Fondeos":
     st.markdown("### 🏢 Prop Firm Journey")
     
     # --- 1. CONEXIÓN AL EXCEL DE FONDEOS ---
-    ID_FONDEOS = "https://drive.google.com/file/d/1ZyKT6ESVnSDrJKdF4aejy2TK0mDrpTOj/view?usp=sharing"  # <--- PEGA TU ID ENTRE LAS COMILLAS
+    ID_FONDEOS = "1ZyKT6ESVnSDrJKdF4aejy2TK0mDrpTOj"
     url_fondeos = f'https://drive.google.com/uc?id={ID_FONDEOS}'
     
     try:
