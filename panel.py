@@ -204,15 +204,16 @@ if modo_panel == "🏆 Gestión de Fondeos":
 # =========================================================
 # (El resto de tu código original sigue aquí abajo, intacto)
 # Función para descargar todas las cuentas y fusionarlas (Actualiza cada 10 min)
-@st.cache_data(ttl=600) 
+@st.cache_data(ttl=600)
 def cargar_datos_automaticos():
-   for id_doc in IDS_DRIVE:
-            url = f'https://drive.google.com/uc?id={id_doc}&t={time.time()}'
-            try:
-                df_temp = pd.read_csv(url, encoding='latin1')
-                lista_dfs.append(df_temp)
-            except Exception as e:
-                pass # Si falla uno, intenta con el siguiente
+    lista_dfs = []
+    for id_doc in IDS_DRIVE:
+        url = f'https://drive.google.com/uc?id={id_doc}&t={time.time()}'
+        try:
+            df_temp = pd.read_csv(url, encoding='latin1')
+            lista_dfs.append(df_temp)
+        except Exception as e:
+            pass # Si falla uno, intenta con el siguiente
             
     if lista_dfs:
         return pd.concat(lista_dfs, ignore_index=True)
