@@ -39,8 +39,8 @@ if modo_panel == "🏆 Gestión de Fondeos":
     st.markdown("### 🏢 Mi Portfolio de Fondeos (Prop Firm Journey)")
     
     # --- 1. CONEXIÓN AL EXCEL DE FONDEOS ---
-    ID_FONDEOS = "1ZyKT6ESVnSDrJKdF4aejy2TK0mDrpTOj"
-    url_fondeos = f'https://drive.google.com/uc?id={ID_FONDEOS}'
+    ID_FONDEOS = "12fbo3yEsmollr5cUn6lj43hEKVa79p0vIgbYWQnBDGw"
+        url_fondeos = f"https://docs.google.com/spreadsheets/d/{ID_FONDEOS}/export?format=csv"
     
     try:
         df_f = pd.read_csv(url_fondeos)
