@@ -297,21 +297,11 @@ try:
     balance_detectado = depositos_df[depositos_df[col_beneficio] > 0][col_beneficio].sum()
     if balance_detectado <= 0: balance_detectado = 50000.0
 
-    st.sidebar.markdown("---")
-    balance_inicial = st.sidebar.number_input("💰 Capital Inicial ($)", value=float(balance_detectado))
-    
-    st.sidebar.markdown("### 🏦 Flujo de Capital y Costes")
+    # === VARIABLES INTERNAS (Menú lateral ocultado) ===
+    balance_inicial = balance_detectado
     retiros_acumulados = abs(depositos_df[depositos_df[col_beneficio] < 0][col_beneficio].sum())
-    coste_pruebas = st.sidebar.number_input("💸 Coste de Pruebas de Fondeo ($)", min_value=0.0, value=0.0, step=50.0)
-    
+    coste_pruebas = 0
     beneficio_neto_real = retiros_acumulados - coste_pruebas
-    
-    st.sidebar.write(f"**Retiros Brutos:** ${retiros_acumulados:,.2f}")
-    if beneficio_neto_real >= 0:
-        st.sidebar.success(f"**Ganancia Neta (Bolsillo):** ${beneficio_neto_real:,.2f}")
-    else:
-        st.sidebar.error(f"**Pérdida Neta (Bolsillo):** ${beneficio_neto_real:,.2f}")
-
     # ==========================================
     # MIS REGLAS DE TRADING EN SIDEBAR
     # ==========================================
