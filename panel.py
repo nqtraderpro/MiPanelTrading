@@ -367,8 +367,8 @@ try:
    # ==========================================
     # 5. MATEMÁTICAS AVANZADAS (FILTRO MT5 INCLUIDO)
     # ==========================================
-    # 1º SUMAMOS TODO (Incluyendo retiros) para que el balance baje correctamente
-    df['Equidad_Acumulada'] = balance_inicial + df[col_beneficio].cumsum()
+    # 1º La gráfica suma todo: el depósito inicial de MT5, las operaciones y resta los retiros.
+    df['Equidad_Acumulada'] = df[col_beneficio].cumsum()
 
     # 2º LIMPIAMOS LOS DATOS para sacar las estadísticas de trading puro
     df_trades = df[(df[col_simbolo].notna()) & (df[col_tipo].astype(str).str.lower() != 'balance')].copy()
