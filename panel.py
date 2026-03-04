@@ -365,18 +365,20 @@ try:
     df['Sesion'] = df['Hora_Dia'].apply(asignar_sesion)
 
     # ==========================================
-    # 5. MATEMÁTICAS AVANZADAS (FILTRO MT5 INCLUIDO)
-    # ==========================================
-    df_trades = df[(df[col_simbolo].notna()) & (df[col_tipo].astype(str).str.lower() != 'balance')].copy()
-    
-    # Filtramos operaciones a cero (Entradas de MT5)
-    df_trades = df_trades[df_trades[col_beneficio] != 0]
+        # 5. MATEMÁTICAS AVANZADAS (FILTRO MT5 INCLUIDO)
+        # ==========================================
+        # 1º SUMAMOS TODO (Incluyendo retiros) para que el balance baje correctamente
+        df['Equidad_Acumulada'] = balance_inicial + df[col_beneficio].cumsum()
 
-    if df_trades.empty:
-        st.info("Aún no hay operaciones reales registradas.")
-        st.stop()
+        # 2º LIMPIAMOS LOS DATOS para sacar las estadísticas de trading puro
+        df_trades = df[(df[col_simbolo].notna()) & (df[col_tipo].astype(str).str.lower() != 'balance')].copy()
 
-    df_trades['Equidad_Acumulada'] = balance_inicial + df_trades[col_beneficio].cumsum()
+        # Filtramos operaciones a cero (Entradas de MT5)
+        df_trades = df_trades[df_trades[col_beneficio] != 0]
+
+        if df_trades.empty:
+            st.info("Aún no hay operaciones reales registradas.")
+            st.stop()
     df_trades['Equidad_Pico'] = df_trades['Equidad_Acumulada'].cummax()
     df_trades['Drawdown_$'] = df_trades['Equidad_Acumulada'] - df_trades['Equidad_Pico']
     
