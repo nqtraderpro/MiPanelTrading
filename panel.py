@@ -14,10 +14,7 @@ warnings.filterwarnings('ignore')
 # 🔌 CONFIGURACIÓN MULTI-CUENTA GOOGLE DRIVE
 # ==========================================
 # Aquí están los IDs de tus dos cuentas de fondeo
-IDS_DRIVE = [
-        "19lh33zv_L5kpVLTw2uroUcXanrv7o2vh",
-        "1ZyJ9MkdzBSTTH1BkZ382CntmMx8X6p37"
-    ]
+IDS_DRIVE = ["1pnzJa0_Pupq0rP9XgOup2d2J7_OJVfd6", "1gXODXjDSf96Ggk-oGCsWOtSty-3YlOnP"]
 
 st.set_page_config(page_title="Pro Trading Journal", layout="wide", initial_sidebar_state="expanded")
 st.title("📊 Panel Cuantitativo Multi-Cuenta Institucional")
