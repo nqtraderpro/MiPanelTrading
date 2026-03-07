@@ -692,7 +692,7 @@ try:
             cal = calendar.HTMLCalendar(calendar.MONDAY)
             mes_dias = cal.monthdayscalendar(year_sel, month_sel)
             
-   html_cal = """
+            html_cal = """
             <style>
                 .table-container { width: 100%; overflow-x: auto; margin-bottom: 10px; }
                 .cal-table { width: 100%; border-collapse: collapse; font-family: sans-serif; color: #333; table-layout: fixed; border: 2px solid #ddd; background-color: #fff; }
