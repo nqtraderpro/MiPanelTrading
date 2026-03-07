@@ -618,7 +618,7 @@ try:
     col_mes, col_cal = st.columns([1.2, 1.5])
 
     st.markdown("---")
-st.markdown("### 📅 Calendario Diario y Eventos")
+    st.markdown("### 📅 Calendario Diario y Eventos")
 
     tab_pnl, tab_eco = st.tabs(["📊 PnL Operativo", "🌐 Calendario Económico"])
 
@@ -717,6 +717,10 @@ st.markdown("### 📅 Calendario Diario y Eventos")
             """,
             height=450
         )
+
+# === CIERRE DE SEGURIDAD DEL PANEL (NO BORRAR) ===
+except Exception as e:
+    st.error(f"Error cargando el panel: {e}")
     
     # ==========================================
     # 11. BITÁCORA Y DIARIO OPERATIVO
