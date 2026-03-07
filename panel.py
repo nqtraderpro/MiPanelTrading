@@ -618,47 +618,76 @@ try:
     col_mes, col_cal = st.columns([1.2, 1.5])
 
 # ==========================================
-    # WIDGET: RIESGO DE RUINA (ESTILO MYFXBOOK)
+    # WIDGET: RIESGO CUANTITATIVO Y VENTAJA ESTADÍSTICA (EDGE)
     # ==========================================
-    # Verificamos que tengamos los datos necesarios para calcularlo
-    if 'balance_inicial' in locals() and balance_inicial > 0 and 'win_rate' in locals():
-        # Calculamos la pérdida promedio (solo de las operaciones negativas)
+    if 'balance_inicial' in locals() and balance_inicial > 0 and 'win_rate' in locals() and not df_trades.empty:
+        import numpy as np
+        
+        # --- 1. Cálculo de Riesgo de Ruina ---
         df_perdidas = df_trades[df_trades[col_beneficio] < 0]
         if not df_perdidas.empty:
             avg_loss_abs = abs(df_perdidas[col_beneficio].mean())
+            limite_dd_dolares = balance_inicial * 0.10
+            trades_para_ruina = int(limite_dd_dolares / avg_loss_abs) if avg_loss_abs > 0 else 999
+            prob_perder = 1 - (win_rate / 100)
+            prob_ruina_pct = (prob_perder ** trades_para_ruina) * 100
             
-            if avg_loss_abs > 0:
-                limite_dd_dolares = balance_inicial * 0.10  # El 10% de la cuenta (Límite Fondeo)
-                trades_para_ruina = int(limite_dd_dolares / avg_loss_abs)
-                
-                # Cálculo de probabilidad: (Probabilidad de perder) elevado al número de trades
-                prob_perder = 1 - (win_rate / 100)
-                prob_ruina_consecutiva = prob_perder ** trades_para_ruina
-                prob_ruina_pct = prob_ruina_consecutiva * 100
-                
-                # Colores según el peligro
-                if prob_ruina_pct < 0.1:
-                    color_prob = "#00994d" # Verde (Seguro)
-                    texto_prob = "< 0.1%"
-                elif prob_ruina_pct < 1:
-                    color_prob = "#b8860b" # Naranja (Precaución)
-                    texto_prob = f"{prob_ruina_pct:.2f}%"
-                else:
-                    color_prob = "#d93025" # Rojo (Peligro)
-                    texto_prob = f"{prob_ruina_pct:.2f}%"
-                
-                st.markdown(f"""
-                <div style="background-color: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                    <div>
-                        <h4 style="margin:0; color: #333; font-family: sans-serif;">🏥 Riesgo de Ruina (Límite -10%)</h4>
-                        <span style="color: #666; font-size: 14px;">Basado en tu pérdida promedio actual de <b>${avg_loss_abs:,.2f}</b></span>
-                    </div>
-                    <div style="text-align: right;">
-                        <h2 style="margin:0; color: {color_prob};">{texto_prob}</h2>
-                        <span style="color: #666; font-size: 14px;">Probabilidad de sufrir <b>{trades_para_ruina} pérdidas consecutivas</b></span>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
+            color_ruina = "#00994d" if prob_ruina_pct < 0.1 else "#b8860b" if prob_ruina_pct < 1 else "#d93025"
+            texto_ruina = "< 0.1%" if prob_ruina_pct < 0.1 else f"{prob_ruina_pct:.2f}%"
+        else:
+            trades_para_ruina, texto_ruina, color_ruina = 0, "0.00%", "#00994d"
+
+        # --- 2. Cálculo Cuantitativo: Z-Score (Rachas) ---
+        ganadores = (df_trades[col_beneficio] > 0).astype(int).values
+        W = np.sum(ganadores == 1)
+        L = np.sum(ganadores == 0)
+        N = len(ganadores)
+        
+        if N > 1 and W > 0 and L > 0:
+            R = 1 # Número de rachas (Runs)
+            for i in range(1, N):
+                if ganadores[i] != ganadores[i-1]:
+                    R += 1
+            mu_R = (2 * W * L / N) + 1
+            std_R = np.sqrt((2 * W * L * (2 * W * L - N)) / ((N ** 2) * (N - 1)))
+            z_score = (R - mu_R) / std_R if std_R > 0 else 0
+        else:
+            z_score = 0.0
+            
+        color_z = "#d93025" if z_score <= -2.0 else "#b8860b" if z_score < 0 else "#00994d"
+        texto_z = "Tendencia a Rachas" if z_score < -1 else "Operativa Alterna" if z_score > 1 else "Aleatorio"
+
+        # --- 3. Cálculo Cuantitativo: AHPR y GHPR ---
+        retornos_pct = df_trades[col_beneficio] / balance_inicial
+        ahpr = retornos_pct.mean() * 100
+        multiplicadores = 1 + retornos_pct
+        ghpr = (np.prod(multiplicadores) ** (1/len(multiplicadores)) - 1) * 100 if len(multiplicadores) > 0 else 0.0
+
+        # --- RENDERIZADO DEL WIDGET TRIPLE ---
+        st.markdown(f"""
+        <div style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 200px; background-color: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                <h4 style="margin:0; color: #333; font-family: sans-serif; font-size: 15px;">🏥 Riesgo de Ruina</h4>
+                <span style="color: #666; font-size: 12px;">Límite -10% Cuenta</span>
+                <h2 style="margin:8px 0 0 0; color: {color_ruina}; font-size: 24px;">{texto_ruina}</h2>
+                <span style="color: #666; font-size: 13px;"><b>{trades_para_ruina}</b> pérdidas seguidas</span>
+            </div>
+            
+            <div style="flex: 1; min-width: 200px; background-color: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                <h4 style="margin:0; color: #333; font-family: sans-serif; font-size: 15px;">🎲 Z-Score (Patrones)</h4>
+                <span style="color: #666; font-size: 12px;">Probabilidad de Rachas</span>
+                <h2 style="margin:8px 0 0 0; color: {color_z}; font-size: 24px;">{z_score:.2f}</h2>
+                <span style="color: #666; font-size: 13px;"><b>{texto_z}</b></span>
+            </div>
+
+            <div style="flex: 1; min-width: 200px; background-color: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                <h4 style="margin:0; color: #333; font-family: sans-serif; font-size: 15px;">📈 Crecimiento Real</h4>
+                <span style="color: #666; font-size: 12px;">GHPR por operación</span>
+                <h2 style="margin:8px 0 0 0; color: #00994d; font-size: 24px;">{ghpr:.2f}%</h2>
+                <span style="color: #666; font-size: 13px;">AHPR (Media): <b>{ahpr:.2f}%</b></span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
     
     st.markdown("---")
     st.markdown("### 📊 Rendimiento Mensual")
