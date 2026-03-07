@@ -875,6 +875,47 @@ except Exception as e:
     st.error(f"⚠️ ¡Vaya! Ha ocurrido un error: {e}")
 
 # ==========================================
+# SIMULADOR DE CRECIMIENTO
+# ==========================================
+st.markdown("---")
+st.markdown("### 🚀 Simulador de Crecimiento")
+
+# Creamos 3 columnas para los controles del simulador
+col_sim1, col_sim2, col_sim3 = st.columns(3)
+with col_sim1:
+    # Intenta coger tu balance inicial, si no, pone 50000 por defecto
+    cap_inicial_sim = st.number_input("Capital Actual ($)", value=float(balance_inicial) if 'balance_inicial' in locals() and balance_inicial > 0 else 50000.0, step=1000.0)
+with col_sim2:
+    obj_mensual_sim = st.number_input("Objetivo Mensual (%)", value=5.0, step=0.5)
+with col_sim3:
+    meses_proy_sim = st.number_input("Meses a proyectar", value=12, step=1)
+
+# Cálculos matemáticos de la proyección
+meses_lista = list(range(1, int(meses_proy_sim) + 1))
+capital_proy = [cap_inicial_sim * (1 + (obj_mensual_sim/100))**m for m in meses_lista]
+
+# Gráfica del simulador adaptada al tema claro
+fig_sim = go.Figure()
+fig_sim.add_trace(go.Scatter(
+    x=[f"Mes {m}" for m in meses_lista],
+    y=capital_proy,
+    mode='lines+markers',
+    line=dict(color='#00994d', width=3),
+    marker=dict(size=8, color='#00994d')
+))
+
+fig_sim.update_layout(
+    height=300,
+    margin=dict(l=0, r=0, t=30, b=0),
+    plot_bgcolor='rgba(0,0,0,0)',
+    paper_bgcolor='rgba(0,0,0,0)',
+    yaxis=dict(tickprefix='$', showgrid=True, gridcolor='rgba(128,128,128,0.2)', tickfont=dict(color='#333')),
+    xaxis=dict(showgrid=False, tickfont=dict(color='#333'))
+)
+
+st.plotly_chart(fig_sim, use_container_width=True)
+
+# ==========================================
 # 🤖 ASISTENTE DE TRADING IA (CEREBRO CUANTITATIVO)
 # ==========================================
 import google.generativeai as genai
