@@ -692,22 +692,22 @@ try:
             cal = calendar.HTMLCalendar(calendar.MONDAY)
             mes_dias = cal.monthdayscalendar(year_sel, month_sel)
             
-   html_cal = f"""
+   html_cal = """
             <style>
-                .table-container {{ width: 100%; overflow-x: auto; margin-bottom: 10px; }}
-                .cal-table {{ width: 100%; border-collapse: collapse; font-family: sans-serif; color: #333; table-layout: fixed; border: 2px solid #ddd; background-color: #fff; }}
-                @media screen and (max-width: 768px) {{
-                    .cal-table {{ min-width: 800px; }}
-                }}
-                .cal-th {{ background-color: #f4f6f9; padding: 10px; text-align: center; border: 1px solid #ddd; font-size: 13px; text-transform: uppercase; font-weight: bold; color: #555; }}
-                .cal-th-total {{ background-color: #fff8e1; padding: 10px; text-align: center; border: 1px solid #ddd; color: #b8860b; white-space: nowrap; width: 120px; }}
-                .cal-td {{ border: 1px solid #eee; height: 95px; vertical-align: top; padding: 6px; background-color: #ffffff; transition: 0.2s; }}
-                .cal-td-total {{ border: 1px solid #ddd; height: 95px; vertical-align: middle; padding: 10px; background-color: #fafafa; font-size: 16px; font-weight: bold; text-align: center; white-space: nowrap; }}
-                .day-num {{ font-size: 14px; font-weight: bold; color: #666; margin-bottom: 5px; border-bottom: 1px solid #f0f0f0; padding-bottom: 3px; }}
-                .profit {{ color: #00994d; font-weight: bold; text-align: center; margin-top: 5px; font-size: 15px; }}
-                .loss {{ color: #d93025; font-weight: bold; text-align: center; margin-top: 5px; font-size: 15px; }}
-                .ops-count {{ color: #888; text-align: center; margin-top: 3px; font-size: 12px; font-style: italic; }}
-                .neutral {{ color: #aaa; text-align: center; margin-top: 10px; font-size: 13px; }}
+                .table-container { width: 100%; overflow-x: auto; margin-bottom: 10px; }
+                .cal-table { width: 100%; border-collapse: collapse; font-family: sans-serif; color: #333; table-layout: fixed; border: 2px solid #ddd; background-color: #fff; }
+                @media screen and (max-width: 768px) {
+                    .cal-table { min-width: 800px; }
+                }
+                .cal-th { background-color: #f4f6f9; padding: 10px; text-align: center; border: 1px solid #ddd; font-size: 13px; text-transform: uppercase; font-weight: bold; color: #555; }
+                .cal-th-total { background-color: #fff8e1; padding: 10px; text-align: center; border: 1px solid #ddd; color: #b8860b; white-space: nowrap; width: 120px; }
+                .cal-td { border: 1px solid #eee; height: 95px; vertical-align: top; padding: 6px; background-color: #ffffff; transition: 0.2s; }
+                .cal-td-total { border: 1px solid #ddd; height: 95px; vertical-align: middle; padding: 10px; background-color: #fafafa; font-size: 16px; font-weight: bold; text-align: center; white-space: nowrap; }
+                .day-num { font-size: 14px; font-weight: bold; color: #666; margin-bottom: 5px; border-bottom: 1px solid #f0f0f0; padding-bottom: 3px; }
+                .profit { color: #00994d; font-weight: bold; text-align: center; margin-top: 5px; font-size: 15px; }
+                .loss { color: #d93025; font-weight: bold; text-align: center; margin-top: 5px; font-size: 15px; }
+                .ops-count { color: #888; text-align: center; margin-top: 3px; font-size: 12px; font-style: italic; }
+                .neutral { color: #aaa; text-align: center; margin-top: 10px; font-size: 13px; }
             </style>
             <div class="table-container">
                 <table class="cal-table">
