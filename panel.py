@@ -717,7 +717,7 @@ st.markdown("### 📅 Calendario Diario y Eventos")
             """,
             height=450
         )
-    )
+    
     # ==========================================
     # 11. BITÁCORA Y DIARIO OPERATIVO
     # ==========================================
