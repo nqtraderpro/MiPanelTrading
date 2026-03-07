@@ -617,7 +617,49 @@ try:
     # ==========================================
     col_mes, col_cal = st.columns([1.2, 1.5])
 
-
+# ==========================================
+    # WIDGET: RIESGO DE RUINA (ESTILO MYFXBOOK)
+    # ==========================================
+    # Verificamos que tengamos los datos necesarios para calcularlo
+    if 'balance_inicial' in locals() and balance_inicial > 0 and 'win_rate' in locals():
+        # Calculamos la pérdida promedio (solo de las operaciones negativas)
+        df_perdidas = df_trades[df_trades[col_beneficio] < 0]
+        if not df_perdidas.empty:
+            avg_loss_abs = abs(df_perdidas[col_beneficio].mean())
+            
+            if avg_loss_abs > 0:
+                limite_dd_dolares = balance_inicial * 0.10  # El 10% de la cuenta (Límite Fondeo)
+                trades_para_ruina = int(limite_dd_dolares / avg_loss_abs)
+                
+                # Cálculo de probabilidad: (Probabilidad de perder) elevado al número de trades
+                prob_perder = 1 - (win_rate / 100)
+                prob_ruina_consecutiva = prob_perder ** trades_para_ruina
+                prob_ruina_pct = prob_ruina_consecutiva * 100
+                
+                # Colores según el peligro
+                if prob_ruina_pct < 0.1:
+                    color_prob = "#00994d" # Verde (Seguro)
+                    texto_prob = "< 0.1%"
+                elif prob_ruina_pct < 1:
+                    color_prob = "#b8860b" # Naranja (Precaución)
+                    texto_prob = f"{prob_ruina_pct:.2f}%"
+                else:
+                    color_prob = "#d93025" # Rojo (Peligro)
+                    texto_prob = f"{prob_ruina_pct:.2f}%"
+                
+                st.markdown(f"""
+                <div style="background-color: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                    <div>
+                        <h4 style="margin:0; color: #333; font-family: sans-serif;">🏥 Riesgo de Ruina (Límite -10%)</h4>
+                        <span style="color: #666; font-size: 14px;">Basado en tu pérdida promedio actual de <b>${avg_loss_abs:,.2f}</b></span>
+                    </div>
+                    <div style="text-align: right;">
+                        <h2 style="margin:0; color: {color_prob};">{texto_prob}</h2>
+                        <span style="color: #666; font-size: 14px;">Probabilidad de sufrir <b>{trades_para_ruina} pérdidas consecutivas</b></span>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+    
     st.markdown("---")
     st.markdown("### 📊 Rendimiento Mensual")
     
