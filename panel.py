@@ -1065,8 +1065,11 @@ if "GOOGLE_API_KEY" in st.secrets:
             st.session_state.mensajes_ia = []
             st.rerun()
 
-    # --- 2. EL SÚPER CONTEXTO INSTITUCIONAL ---
-    # 1. Variables de Riesgo
+# --- 2. EL SÚPER CONTEXTO INSTITUCIONAL (VERSIÓN QUANT) ---
+    # 1. Variables de Riesgo y Cuantitativas
+    z_score_val = z_score if 'z_score' in locals() else 0.0
+    ghpr_val = ghpr if 'ghpr' in locals() else 0.0
+    ahpr_val = ahpr if 'ahpr' in locals() else 0.0
     riesgo_ruina_str = f"{prob_ruina_pct:.4f}%" if 'prob_ruina_pct' in locals() else "Desconocido"
     trades_ruina_str = f"{trades_para_ruina}" if 'trades_para_ruina' in locals() else "Desconocido"
     perdida_media_str = f"${avg_loss_abs:,.2f}" if 'avg_loss_abs' in locals() else "Desconocido"
@@ -1092,24 +1095,27 @@ if "GOOGLE_API_KEY" in st.secrets:
     
     Tu tono debe ser analítico, directo, estrictamente profesional y sin rodeos. Eres constructivo pero implacable con la gestión de riesgo. No des consejos genéricos de libro, básate ÚNICA Y EXCLUSIVAMENTE en estas métricas exactas:
 
-    📊 RENDIMIENTO GLOBAL:
+    📈 RENDIMIENTO GLOBAL Y VENTAJA ESTADÍSTICA (EDGE):
     - Win Rate: {win_rate:.1f}%
     - Profit Factor: {profit_factor:.2f}
     - Beneficio Neto Total: ${beneficio_total:,.2f}
+    - GHPR (Crecimiento Real por trade): {ghpr_val:.4f}%
+    - AHPR (Crecimiento Promedio): {ahpr_val:.4f}%
+    - Z-Score (Patrón de Rachas): {z_score_val:.2f}
     
     🛡️ SUPERVIVENCIA ESTADÍSTICA (Límite Ruina -10%):
-    - Probabilidad de Ruina Matemática: {riesgo_ruina_str} (Si es menor al 1%, es excelente. Si es mayor, es peligroso).
+    - Probabilidad de Ruina Matemática: {riesgo_ruina_str}
     - Colchón de Supervivencia: Tienes margen para {trades_ruina_str} pérdidas consecutivas antes de quemar la cuenta.
     - Pérdida Promedio por trade malo: {perdida_media_str}
 
     📅 OPERATIVA EN VIVO DE HOY ({hoy_fecha.strftime('%d/%m/%Y')}):
     - {resumen_hoy}
 
-    REGLAS DE RESPUESTA:
-    1. Si te pregunta por su día de hoy, analiza el 'PnL Diario' y los resultados individuales. Si ves que lleva muchas operaciones seguidas perdiendo hoy, ordénale APAGAR LAS PANTALLAS por hoy.
-    2. Si te pregunta por su riesgo general, evalúa su 'Probabilidad de Ruina' y el 'Colchón de Supervivencia'. Felicítalo si el riesgo es bajo (< 0.1%).
-    3. Si hoy va en positivo, dile que proteja el capital ganado y que no devuelva las ganancias al mercado.
-    4. Ve directo al grano. Usa listas, negritas y datos numéricos en tus respuestas. Compórtate como un auténtico profesional de las finanzas.
+    REGLAS DE RESPUESTA DEL CRO:
+    1. Z-SCORE CRÍTICO: Si el Z-Score es muy negativo (por debajo de -3.0, como un -7.43), advierte al trader que su sistema es ALTAMENTE dependiente de rachas. Si hoy tiene pérdidas, exígele que APAGUE LAS PANTALLAS porque la estadística dicta que vendrán más operaciones rojas seguidas.
+    2. CRECIMIENTO GHPR: Si el GHPR es muy bajo (ej. 0.01%), dile que está en "modo supervivencia": no pierde la cuenta gracias a su buena gestión de riesgo, pero apenas avanza. Hazle ver que necesita mejorar su ratio Riesgo/Beneficio (cortar pérdidas antes o dejar correr ganancias).
+    3. Si te pregunta por su día de hoy, analiza el 'PnL Diario' y los trades individuales.
+    4. Ve directo al grano. Usa listas, negritas y datos numéricos en tus respuestas. Compórtate como un auténtico profesional de las finanzas cuantitativas.
     """
 
     if "mensajes_ia" not in st.session_state:
