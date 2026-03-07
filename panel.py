@@ -617,6 +617,44 @@ try:
     # ==========================================
     col_mes, col_cal = st.columns([1.2, 1.5])
 
+
+    st.markdown("---")
+    st.markdown("### 📊 Rendimiento Mensual")
+    
+    # Preparamos los datos por mes
+    df_meses = df_trades.groupby('Mes_Año_Sort')[col_beneficio].sum().reset_index()
+    df_meses['Mes_Num'] = df_meses['Mes_Año_Sort'].dt.month
+    df_meses['Año'] = df_meses['Mes_Año_Sort'].dt.year
+    df_meses['Nombre_Mes'] = df_meses['Mes_Num'].map(nombres_meses)
+    df_meses['Mes'] = df_meses['Nombre_Mes'] + " " + df_meses['Año'].astype(str)
+    
+    # Creamos la gráfica de barras
+    if not df_meses.empty:
+        fig_mes = go.Figure()
+        
+        # Colores: verde si ganas, rojo si pierdes
+        colores_mes = ['#00cc66' if val >= 0 else '#ff4d4d' for val in df_meses[col_beneficio]]
+        
+        fig_mes.add_trace(go.Bar(
+            x=df_meses['Mes'],
+            y=df_meses[col_beneficio],
+            marker_color=colores_mes,
+            text=df_meses[col_beneficio].apply(lambda x: f"${x:,.2f}"),
+            textposition='outside',
+            textfont=dict(color='#eee', size=12, weight='bold')
+        ))
+        
+        fig_mes.update_layout(
+            height=350,
+            margin=dict(l=0, r=0, t=30, b=0),
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            xaxis=dict(showgrid=False, tickfont=dict(color='#aaa')),
+            yaxis=dict(showgrid=True, gridcolor='#333', tickfont=dict(color='#aaa'), tickprefix='$')
+        )
+        st.plotly_chart(fig_mes, use_container_width=True)
+    else:
+        st.info("No hay suficientes datos para mostrar el rendimiento mensual.")
     st.markdown("---")
     st.markdown("### 📅 Calendario Diario y Eventos")
 
