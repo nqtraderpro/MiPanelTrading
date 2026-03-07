@@ -692,22 +692,22 @@ try:
             cal = calendar.HTMLCalendar(calendar.MONDAY)
             mes_dias = cal.monthdayscalendar(year_sel, month_sel)
             
-            html_cal = f"""
+   html_cal = f"""
             <style>
                 .table-container {{ width: 100%; overflow-x: auto; margin-bottom: 10px; }}
-                .cal-table {{ width: 100%; border-collapse: collapse; font-family: sans-serif; color: #eee; table-layout: fixed; border: 2px solid #444; }}
+                .cal-table {{ width: 100%; border-collapse: collapse; font-family: sans-serif; color: #333; table-layout: fixed; border: 2px solid #ddd; background-color: #fff; }}
                 @media screen and (max-width: 768px) {{
                     .cal-table {{ min-width: 800px; }}
                 }}
-                .cal-th {{ background-color: #1e1e1e; padding: 10px; text-align: center; border: 1px solid #444; font-size: 13px; text-transform: uppercase; }}
-                .cal-th-total {{ background-color: #2b1d00; padding: 10px; text-align: center; border: 1px solid #444; color: #ffd700; white-space: nowrap; width: 120px; }}
-                .cal-td {{ border: 1px solid #444; height: 95px; vertical-align: top; padding: 6px; background-color: #0e1117; transition: 0.2s; }}
-                .cal-td-total {{ border: 1px solid #444; height: 95px; vertical-align: middle; padding: 10px; background-color: #1a1500; font-size: 16px; font-weight: bold; text-align: center; white-space: nowrap; }}
-                .day-num {{ font-size: 14px; font-weight: bold; color: #aaa; margin-bottom: 5px; border-bottom: 1px solid #333; padding-bottom: 3px; }}
-                .profit {{ color: #00cc66; font-weight: bold; text-align: center; margin-top: 5px; font-size: 15px; }}
-                .loss {{ color: #ff4d4d; font-weight: bold; text-align: center; margin-top: 5px; font-size: 15px; }}
-                .ops-count {{ color: #b3b3b3; text-align: center; margin-top: 3px; font-size: 12px; font-style: italic; }}
-                .neutral {{ color: #888; text-align: center; margin-top: 10px; font-size: 13px; }}
+                .cal-th {{ background-color: #f4f6f9; padding: 10px; text-align: center; border: 1px solid #ddd; font-size: 13px; text-transform: uppercase; font-weight: bold; color: #555; }}
+                .cal-th-total {{ background-color: #fff8e1; padding: 10px; text-align: center; border: 1px solid #ddd; color: #b8860b; white-space: nowrap; width: 120px; }}
+                .cal-td {{ border: 1px solid #eee; height: 95px; vertical-align: top; padding: 6px; background-color: #ffffff; transition: 0.2s; }}
+                .cal-td-total {{ border: 1px solid #ddd; height: 95px; vertical-align: middle; padding: 10px; background-color: #fafafa; font-size: 16px; font-weight: bold; text-align: center; white-space: nowrap; }}
+                .day-num {{ font-size: 14px; font-weight: bold; color: #666; margin-bottom: 5px; border-bottom: 1px solid #f0f0f0; padding-bottom: 3px; }}
+                .profit {{ color: #00994d; font-weight: bold; text-align: center; margin-top: 5px; font-size: 15px; }}
+                .loss {{ color: #d93025; font-weight: bold; text-align: center; margin-top: 5px; font-size: 15px; }}
+                .ops-count {{ color: #888; text-align: center; margin-top: 3px; font-size: 12px; font-style: italic; }}
+                .neutral {{ color: #aaa; text-align: center; margin-top: 10px; font-size: 13px; }}
             </style>
             <div class="table-container">
                 <table class="cal-table">
@@ -718,7 +718,8 @@ try:
                 suma_semana = 0
                 for dia in semana:
                     if dia == 0:
-                        html_cal += "<td class='cal-td' style='background-color: #050505;'></td>"
+                        # Fondo gris claro para los días vacíos
+                        html_cal += "<td class='cal-td' style='background-color: #f9f9f9;'></td>"
                     else:
                         datos_dia = pnl_por_dia.get(dia, {col_beneficio: 0, 'Cuenta': 0})
                         resultado = datos_dia[col_beneficio]
@@ -731,7 +732,7 @@ try:
                         elif resultado < 0: html_cal += f"<td class='cal-td'><div class='day-num'>{dia}</div><div class='loss'>-${abs(resultado):,.2f}</div>{texto_ops}</td>"
                         else: html_cal += f"<td class='cal-td'><div class='day-num'>{dia}</div><div class='neutral'>-</div></td>"
                 
-                color_total = '#00cc66' if suma_semana > 0 else '#ff4d4d' if suma_semana < 0 else '#888'
+                color_total = '#00994d' if suma_semana > 0 else '#d93025' if suma_semana < 0 else '#888'
                 signo = '+' if suma_semana > 0 else ''
                 html_cal += f"<td class='cal-td-total' style='color: {color_total}'>{signo}${suma_semana:,.2f}</td>"
                 html_cal += "</tr>"
@@ -742,13 +743,13 @@ try:
             """
             st.markdown(html_cal, unsafe_allow_html=True)
 
-            color_mes = "#00cc66" if total_pnl_mes >= 0 else "#ff4d4d"
+            color_mes = "#00994d" if total_pnl_mes >= 0 else "#d93025"
             signo_mes = "+" if total_pnl_mes >= 0 else ""
             html_mes = f"""
-            <div style="background-color: #1e1e1e; padding: 15px; border-radius: 6px; border: 1px solid #444; text-align: center; margin-top: 5px;">
-                <span style="color: #eee; font-size: 16px; font-weight: bold; text-transform: uppercase;">Total {mes_seleccionado}:</span>
+            <div style="background-color: #f4f6f9; padding: 15px; border-radius: 6px; border: 1px solid #ddd; text-align: center; margin-top: 5px;">
+                <span style="color: #333; font-size: 16px; font-weight: bold; text-transform: uppercase;">Total {mes_seleccionado}:</span>
                 <span style="color: {color_mes}; font-size: 24px; font-weight: bold; margin-left: 15px;">{signo_mes}${total_pnl_mes:,.2f}</span>
-                <span style="color: #aaa; font-size: 14px; margin-left: 10px;">({total_ops_mes} operaciones)</span>
+                <span style="color: #666; font-size: 14px; margin-left: 10px;">({total_ops_mes} operaciones)</span>
             </div>
             """
             st.markdown(html_mes, unsafe_allow_html=True)
