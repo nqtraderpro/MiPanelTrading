@@ -636,6 +636,15 @@ try:
     if not df_meses.empty:
         fig_mes = go.Figure()
         
+        # Magia: Calculamos el % basándonos en tu capital inicial
+        if balance_inicial > 0:
+            df_meses['Texto_Barra'] = df_meses.apply(
+                lambda fila: f"${fila[col_beneficio]:,.2f}<br>({(fila[col_beneficio] / balance_inicial) * 100:+.2f}%)", 
+                axis=1
+            )
+        else:
+            df_meses['Texto_Barra'] = df_meses[col_beneficio].apply(lambda x: f"${x:,.2f}")
+
         # Colores: verde si ganas, rojo si pierdes
         colores_mes = ['#00cc66' if val >= 0 else '#ff4d4d' for val in df_meses[col_beneficio]]
         
@@ -643,9 +652,9 @@ try:
             x=df_meses['Mes'],
             y=df_meses[col_beneficio],
             marker_color=colores_mes,
-            text=df_meses[col_beneficio].apply(lambda x: f"${x:,.2f}"),
-            textposition='outside',
-            textfont=dict(color='#eee', size=12, weight='bold')
+            text=df_meses['Texto_Barra'],
+            textposition='auto',
+            textfont=dict(size=13, weight='bold')
         ))
         
         fig_mes.update_layout(
@@ -653,10 +662,15 @@ try:
             margin=dict(l=0, r=0, t=30, b=0),
             plot_bgcolor='rgba(0,0,0,0)',
             paper_bgcolor='rgba(0,0,0,0)',
-            xaxis=dict(showgrid=False, tickfont=dict(color='#aaa')),
-            yaxis=dict(showgrid=True, gridcolor='#333', tickfont=dict(color='#aaa'), tickprefix='$')
+            xaxis=dict(showgrid=False),
+            yaxis=dict(showgrid=True, gridcolor='rgba(128,128,128,0.2)', tickprefix='$')
         )
-        st.plotly_chart(fig_mes, use_container_width=True)
+        
+        # TRUCO DE DISEÑO: Lo metemos en la columna central
+        col_izq, col_centro, col_der = st.columns([1, 4, 1])
+        with col_centro:
+            st.plotly_chart(fig_mes, use_container_width=True)
+            
     else:
         st.info("No hay suficientes datos para mostrar el rendimiento mensual.")
     st.markdown("---")
