@@ -620,102 +620,103 @@ try:
     st.markdown("---")
 st.markdown("### 📅 Calendario Diario y Eventos")
 
-tab_pnl, tab_eco = st.tabs(["📊 PnL Operativo", "🌐 Calendario Económico"])
+    tab_pnl, tab_eco = st.tabs(["📊 PnL Operativo", "🌐 Calendario Económico"])
 
-with tab_pnl:
-    meses_disponibles = df_trades['Mes_Año_Sort'].dt.strftime('%Y-%m').unique()
-    if len(meses_disponibles) > 0:
-        mes_seleccionado = st.selectbox("Selecciona el mes a visualizar:", meses_disponibles[::-1])
-        year_sel, month_sel = map(int, mes_seleccionado.split('-'))
-        df_mes_cal = df_trades[(df_trades['Año'] == year_sel) & (df_trades['Mes_Num'] == month_sel)]
-        
-        pnl_por_dia = df_mes_cal.groupby(df_mes_cal['Cierre'].dt.day).agg({col_beneficio: 'sum', 'Cuenta': 'count'}).to_dict('index')
-        total_pnl_mes = df_mes_cal[col_beneficio].sum()
-        total_ops_mes = df_mes_cal.shape[0]
-
-        cal = calendar.HTMLCalendar(calendar.MONDAY)
-        mes_dias = cal.monthdayscalendar(year_sel, month_sel)
-        
-        html_cal = f"""
-        <style>
-            .table-container {{ width: 100%; overflow-x: auto; margin-bottom: 10px; }}
-            .cal-table {{ width: 100%; border-collapse: collapse; font-family: sans-serif; color: #eee; table-layout: fixed; border: 2px solid #444; }}
-            @media screen and (max-width: 768px) {{
-                .cal-table {{ min-width: 800px; }}
-            }}
-            .cal-th {{ background-color: #1e1e1e; padding: 10px; text-align: center; border: 1px solid #444; font-size: 13px; text-transform: uppercase; }}
-            .cal-th-total {{ background-color: #2b1d00; padding: 10px; text-align: center; border: 1px solid #444; color: #ffd700; white-space: nowrap; width: 120px; }}
-            .cal-td {{ border: 1px solid #444; height: 95px; vertical-align: top; padding: 6px; background-color: #0e1117; transition: 0.2s; }}
-            .cal-td-total {{ border: 1px solid #444; height: 95px; vertical-align: middle; padding: 10px; background-color: #1a1500; font-size: 16px; font-weight: bold; text-align: center; white-space: nowrap; }}
-            .day-num {{ font-size: 14px; font-weight: bold; color: #aaa; margin-bottom: 5px; border-bottom: 1px solid #333; padding-bottom: 3px; }}
-            .profit {{ color: #00cc66; font-weight: bold; text-align: center; margin-top: 5px; font-size: 15px; }}
-            .loss {{ color: #ff4d4d; font-weight: bold; text-align: center; margin-top: 5px; font-size: 15px; }}
-            .ops-count {{ color: #b3b3b3; text-align: center; margin-top: 3px; font-size: 12px; font-style: italic; }}
-            .neutral {{ color: #888; text-align: center; margin-top: 10px; font-size: 13px; }}
-        </style>
-        <div class="table-container">
-            <table class="cal-table">
-                <tr><th class="cal-th">Lun</th><th class="cal-th">Mar</th><th class="cal-th">Mié</th><th class="cal-th">Jue</th><th class="cal-th">Vie</th><th class="cal-th">Sáb</th><th class="cal-th">Dom</th><th class="cal-th-total">TOTAL SEMANA</th></tr>
-        """
-        for semana in mes_dias:
-            html_cal += "<tr>"
-            suma_semana = 0
-            for dia in semana:
-                if dia == 0:
-                    html_cal += "<td class='cal-td' style='background-color: #050505;'></td>"
-                else:
-                    datos_dia = pnl_por_dia.get(dia, {col_beneficio: 0, 'Cuenta': 0})
-                    resultado = datos_dia[col_beneficio]
-                    num_ops = datos_dia['Cuenta']
-                    suma_semana += resultado
-                    
-                    texto_ops = f"<div class='ops-count'>{num_ops} ops</div>" if num_ops > 0 else ""
-                    
-                    if resultado > 0: html_cal += f"<td class='cal-td'><div class='day-num'>{dia}</div><div class='profit'>+${resultado:,.2f}</div>{texto_ops}</td>"
-                    elif resultado < 0: html_cal += f"<td class='cal-td'><div class='day-num'>{dia}</div><div class='loss'>-${abs(resultado):,.2f}</div>{texto_ops}</td>"
-                    else: html_cal += f"<td class='cal-td'><div class='day-num'>{dia}</div><div class='neutral'>-</div></td>"
+    with tab_pnl:
+        meses_disponibles = df_trades['Mes_Año_Sort'].dt.strftime('%Y-%m').unique()
+        if len(meses_disponibles) > 0:
+            mes_seleccionado = st.selectbox("Selecciona el mes a visualizar:", meses_disponibles[::-1])
+            year_sel, month_sel = map(int, mes_seleccionado.split('-'))
+            df_mes_cal = df_trades[(df_trades['Año'] == year_sel) & (df_trades['Mes_Num'] == month_sel)]
             
-            color_total = '#00cc66' if suma_semana > 0 else '#ff4d4d' if suma_semana < 0 else '#888'
-            signo = '+' if suma_semana > 0 else ''
-            html_cal += f"<td class='cal-td-total' style='color: {color_total}'>{signo}${suma_semana:,.2f}</td>"
-            html_cal += "</tr>"
-        
-        html_cal += """
-            </table>
-        </div>
-        """
-        st.markdown(html_cal, unsafe_allow_html=True)
+            pnl_por_dia = df_mes_cal.groupby(df_mes_cal['Cierre'].dt.day).agg({col_beneficio: 'sum', 'Cuenta': 'count'}).to_dict('index')
+            total_pnl_mes = df_mes_cal[col_beneficio].sum()
+            total_ops_mes = df_mes_cal.shape[0]
 
-        color_mes = "#00cc66" if total_pnl_mes >= 0 else "#ff4d4d"
-        signo_mes = "+" if total_pnl_mes >= 0 else ""
-        html_mes = f"""
-        <div style="background-color: #1e1e1e; padding: 15px; border-radius: 6px; border: 1px solid #444; text-align: center; margin-top: 5px;">
-            <span style="color: #eee; font-size: 16px; font-weight: bold; text-transform: uppercase;">Total {mes_seleccionado}:</span>
-            <span style="color: {color_mes}; font-size: 24px; font-weight: bold; margin-left: 15px;">{signo_mes}${total_pnl_mes:,.2f}</span>
-            <span style="color: #aaa; font-size: 14px; margin-left: 10px;">({total_ops_mes} operaciones)</span>
-        </div>
-        """
-        st.markdown(html_mes, unsafe_allow_html=True)
+            cal = calendar.HTMLCalendar(calendar.MONDAY)
+            mes_dias = cal.monthdayscalendar(year_sel, month_sel)
+            
+            html_cal = f"""
+            <style>
+                .table-container {{ width: 100%; overflow-x: auto; margin-bottom: 10px; }}
+                .cal-table {{ width: 100%; border-collapse: collapse; font-family: sans-serif; color: #eee; table-layout: fixed; border: 2px solid #444; }}
+                @media screen and (max-width: 768px) {{
+                    .cal-table {{ min-width: 800px; }}
+                }}
+                .cal-th {{ background-color: #1e1e1e; padding: 10px; text-align: center; border: 1px solid #444; font-size: 13px; text-transform: uppercase; }}
+                .cal-th-total {{ background-color: #2b1d00; padding: 10px; text-align: center; border: 1px solid #444; color: #ffd700; white-space: nowrap; width: 120px; }}
+                .cal-td {{ border: 1px solid #444; height: 95px; vertical-align: top; padding: 6px; background-color: #0e1117; transition: 0.2s; }}
+                .cal-td-total {{ border: 1px solid #444; height: 95px; vertical-align: middle; padding: 10px; background-color: #1a1500; font-size: 16px; font-weight: bold; text-align: center; white-space: nowrap; }}
+                .day-num {{ font-size: 14px; font-weight: bold; color: #aaa; margin-bottom: 5px; border-bottom: 1px solid #333; padding-bottom: 3px; }}
+                .profit {{ color: #00cc66; font-weight: bold; text-align: center; margin-top: 5px; font-size: 15px; }}
+                .loss {{ color: #ff4d4d; font-weight: bold; text-align: center; margin-top: 5px; font-size: 15px; }}
+                .ops-count {{ color: #b3b3b3; text-align: center; margin-top: 3px; font-size: 12px; font-style: italic; }}
+                .neutral {{ color: #888; text-align: center; margin-top: 10px; font-size: 13px; }}
+            </style>
+            <div class="table-container">
+                <table class="cal-table">
+                    <tr><th class="cal-th">Lun</th><th class="cal-th">Mar</th><th class="cal-th">Mié</th><th class="cal-th">Jue</th><th class="cal-th">Vie</th><th class="cal-th">Sáb</th><th class="cal-th">Dom</th><th class="cal-th-total">TOTAL SEMANA</th></tr>
+            """
+            for semana in mes_dias:
+                html_cal += "<tr>"
+                suma_semana = 0
+                for dia in semana:
+                    if dia == 0:
+                        html_cal += "<td class='cal-td' style='background-color: #050505;'></td>"
+                    else:
+                        datos_dia = pnl_por_dia.get(dia, {col_beneficio: 0, 'Cuenta': 0})
+                        resultado = datos_dia[col_beneficio]
+                        num_ops = datos_dia['Cuenta']
+                        suma_semana += resultado
+                        
+                        texto_ops = f"<div class='ops-count'>{num_ops} ops</div>" if num_ops > 0 else ""
+                        
+                        if resultado > 0: html_cal += f"<td class='cal-td'><div class='day-num'>{dia}</div><div class='profit'>+${resultado:,.2f}</div>{texto_ops}</td>"
+                        elif resultado < 0: html_cal += f"<td class='cal-td'><div class='day-num'>{dia}</div><div class='loss'>-${abs(resultado):,.2f}</div>{texto_ops}</td>"
+                        else: html_cal += f"<td class='cal-td'><div class='day-num'>{dia}</div><div class='neutral'>-</div></td>"
+                
+                color_total = '#00cc66' if suma_semana > 0 else '#ff4d4d' if suma_semana < 0 else '#888'
+                signo = '+' if suma_semana > 0 else ''
+                html_cal += f"<td class='cal-td-total' style='color: {color_total}'>{signo}${suma_semana:,.2f}</td>"
+                html_cal += "</tr>"
+            
+            html_cal += """
+                </table>
+            </div>
+            """
+            st.markdown(html_cal, unsafe_allow_html=True)
 
-with tab_eco:
-    components.html(
-        """
-        <div class="tradingview-widget-container">
-          <div class="tradingview-widget-container__widget"></div>
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
-          {
-          "colorTheme": "dark",
-          "isTransparent": true,
-          "width": "100%",
-          "height": "450",
-          "locale": "es",
-          "importanceFilter": "-1,0,1",
-          "currencyFilter": "USD,EUR,GBP,JPY,AUD,CAD,CHF,NZD"
-          }
-          </script>
-        </div>
-        """,
-        height=450
+            color_mes = "#00cc66" if total_pnl_mes >= 0 else "#ff4d4d"
+            signo_mes = "+" if total_pnl_mes >= 0 else ""
+            html_mes = f"""
+            <div style="background-color: #1e1e1e; padding: 15px; border-radius: 6px; border: 1px solid #444; text-align: center; margin-top: 5px;">
+                <span style="color: #eee; font-size: 16px; font-weight: bold; text-transform: uppercase;">Total {mes_seleccionado}:</span>
+                <span style="color: {color_mes}; font-size: 24px; font-weight: bold; margin-left: 15px;">{signo_mes}${total_pnl_mes:,.2f}</span>
+                <span style="color: #aaa; font-size: 14px; margin-left: 10px;">({total_ops_mes} operaciones)</span>
+            </div>
+            """
+            st.markdown(html_mes, unsafe_allow_html=True)
+
+    with tab_eco:
+        components.html(
+            """
+            <div class="tradingview-widget-container">
+              <div class="tradingview-widget-container__widget"></div>
+              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
+              {
+              "colorTheme": "dark",
+              "isTransparent": true,
+              "width": "100%",
+              "height": "450",
+              "locale": "es",
+              "importanceFilter": "-1,0,1",
+              "currencyFilter": "USD,EUR,GBP,JPY,AUD,CAD,CHF,NZD"
+              }
+              </script>
+            </div>
+            """,
+            height=450
+        )
     )
     # ==========================================
     # 11. BITÁCORA Y DIARIO OPERATIVO
