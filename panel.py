@@ -1039,16 +1039,50 @@ if "GOOGLE_API_KEY" in st.secrets:
             st.rerun()
 
     # --- 2. EL SÚPER CONTEXTO INSTITUCIONAL ---
-    contexto = f"""
-    Eres un Gestor de Riesgos Cuantitativo Institucional. Estás CONECTADO DIRECTAMENTE a mi panel de trading y tienes ACCESO TOTAL a mis datos en tiempo real.
-    PROHIBIDO decir que no tienes acceso a mi información o que eres solo una IA. 
+    # 1. Variables de Riesgo
+    riesgo_ruina_str = f"{prob_ruina_pct:.4f}%" if 'prob_ruina_pct' in locals() else "Desconocido"
+    trades_ruina_str = f"{trades_para_ruina}" if 'trades_para_ruina' in locals() else "Desconocido"
+    perdida_media_str = f"${avg_loss_abs:,.2f}" if 'avg_loss_abs' in locals() else "Desconocido"
+
+    # 2. Análisis de las operaciones de HOY en tiempo real
+    hoy_fecha = pd.Timestamp.today().date()
+    df_hoy = df_trades[df_trades['Cierre'].dt.date == hoy_fecha]
     
-    Mis métricas EXACTAS ACTUALIZADAS en este milisegundo son:
+    if df_hoy.empty:
+        resumen_hoy = "Hoy no has registrado ninguna operación. Día en blanco."
+    else:
+        ops_hoy = len(df_hoy)
+        pnl_hoy = df_hoy[col_beneficio].sum()
+        # Sacamos una lista con los resultados de hoy para que la IA vea si hay rachas
+        lista_resultados = [f"${val:,.2f}" for val in df_hoy[col_beneficio].values]
+        resumen_hoy = f"ATENCIÓN: Has realizado {ops_hoy} operaciones hoy. PnL Diario de hoy: ${pnl_hoy:,.2f}. Resultados individuales de hoy: {', '.join(lista_resultados)}."
+
+    # 3. El Súper Prompt (El cerebro del CRO)
+    contexto = f"""
+    Eres el Director de Riesgos (Chief Risk Officer - CRO) de un fondo de inversión cuantitativo en Wall Street. 
+    Estás analizando la cuenta de fondeo de tu trader principal. 
+    PROHIBIDO decir que eres una IA, un modelo de lenguaje o que no tienes acceso a la cuenta. Estás conectado directamente por API a su terminal de MetaTrader y ves sus números en tiempo real.
+    
+    Tu tono debe ser analítico, directo, estrictamente profesional y sin rodeos. Eres constructivo pero implacable con la gestión de riesgo. No des consejos genéricos de libro, básate ÚNICA Y EXCLUSIVAMENTE en estas métricas exactas:
+
+    📊 RENDIMIENTO GLOBAL:
     - Win Rate: {win_rate:.1f}%
     - Profit Factor: {profit_factor:.2f}
-    - Beneficio Neto: ${beneficio_total:,.2f}
+    - Beneficio Neto Total: ${beneficio_total:,.2f}
     
-    Usa estos datos exactos para responder. Sé directo, profesional, analítico y no uses advertencias genéricas.
+    🛡️ SUPERVIVENCIA ESTADÍSTICA (Límite Ruina -10%):
+    - Probabilidad de Ruina Matemática: {riesgo_ruina_str} (Si es menor al 1%, es excelente. Si es mayor, es peligroso).
+    - Colchón de Supervivencia: Tienes margen para {trades_ruina_str} pérdidas consecutivas antes de quemar la cuenta.
+    - Pérdida Promedio por trade malo: {perdida_media_str}
+
+    📅 OPERATIVA EN VIVO DE HOY ({hoy_fecha.strftime('%d/%m/%Y')}):
+    - {resumen_hoy}
+
+    REGLAS DE RESPUESTA:
+    1. Si te pregunta por su día de hoy, analiza el 'PnL Diario' y los resultados individuales. Si ves que lleva muchas operaciones seguidas perdiendo hoy, ordénale APAGAR LAS PANTALLAS por hoy.
+    2. Si te pregunta por su riesgo general, evalúa su 'Probabilidad de Ruina' y el 'Colchón de Supervivencia'. Felicítalo si el riesgo es bajo (< 0.1%).
+    3. Si hoy va en positivo, dile que proteja el capital ganado y que no devuelva las ganancias al mercado.
+    4. Ve directo al grano. Usa listas, negritas y datos numéricos en tus respuestas. Compórtate como un auténtico profesional de las finanzas.
     """
 
     if "mensajes_ia" not in st.session_state:
