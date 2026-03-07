@@ -875,45 +875,107 @@ except Exception as e:
     st.error(f"⚠️ ¡Vaya! Ha ocurrido un error: {e}")
 
 # ==========================================
-# SIMULADOR DE CRECIMIENTO
+# SIMULADORES DE PROYECCIÓN Y RIESGO
 # ==========================================
 st.markdown("---")
-st.markdown("### 🚀 Simulador de Crecimiento")
+st.markdown("### 🚀 Simuladores y Análisis de Riesgo")
 
-# Creamos 3 columnas para los controles del simulador
-col_sim1, col_sim2, col_sim3 = st.columns(3)
-with col_sim1:
-    # Intenta coger tu balance inicial, si no, pone 50000 por defecto
-    cap_inicial_sim = st.number_input("Capital Actual ($)", value=float(balance_inicial) if 'balance_inicial' in locals() and balance_inicial > 0 else 50000.0, step=1000.0)
-with col_sim2:
-    obj_mensual_sim = st.number_input("Objetivo Mensual (%)", value=5.0, step=0.5)
-with col_sim3:
-    meses_proy_sim = st.number_input("Meses a proyectar", value=12, step=1)
+tab_lineal, tab_montecarlo = st.tabs(["📈 Proyección Lineal", "🎲 Simulación Montecarlo"])
 
-# Cálculos matemáticos de la proyección
-meses_lista = list(range(1, int(meses_proy_sim) + 1))
-capital_proy = [cap_inicial_sim * (1 + (obj_mensual_sim/100))**m for m in meses_lista]
+with tab_lineal:
+    st.caption("Proyección matemática perfecta (Interés Compuesto).")
+    col_sim1, col_sim2, col_sim3 = st.columns(3)
+    with col_sim1:
+        cap_inicial_sim = st.number_input("Capital Actual ($)", value=float(balance_inicial) if 'balance_inicial' in locals() and balance_inicial > 0 else 50000.0, step=1000.0, key="cap_lin")
+    with col_sim2:
+        obj_mensual_sim = st.number_input("Objetivo Mensual (%)", value=5.0, step=0.5)
+    with col_sim3:
+        meses_proy_sim = st.number_input("Meses a proyectar", value=12, step=1)
 
-# Gráfica del simulador adaptada al tema claro
-fig_sim = go.Figure()
-fig_sim.add_trace(go.Scatter(
-    x=[f"Mes {m}" for m in meses_lista],
-    y=capital_proy,
-    mode='lines+markers',
-    line=dict(color='#00994d', width=3),
-    marker=dict(size=8, color='#00994d')
-))
+    meses_lista = list(range(1, int(meses_proy_sim) + 1))
+    capital_proy = [cap_inicial_sim * (1 + (obj_mensual_sim/100))**m for m in meses_lista]
 
-fig_sim.update_layout(
-    height=300,
-    margin=dict(l=0, r=0, t=30, b=0),
-    plot_bgcolor='rgba(0,0,0,0)',
-    paper_bgcolor='rgba(0,0,0,0)',
-    yaxis=dict(tickprefix='$', showgrid=True, gridcolor='rgba(128,128,128,0.2)', tickfont=dict(color='#333')),
-    xaxis=dict(showgrid=False, tickfont=dict(color='#333'))
-)
+    fig_sim = go.Figure()
+    fig_sim.add_trace(go.Scatter(
+        x=[f"Mes {m}" for m in meses_lista], y=capital_proy,
+        mode='lines+markers', line=dict(color='#00994d', width=3), marker=dict(size=8, color='#00994d')
+    ))
+    fig_sim.update_layout(
+        height=300, margin=dict(l=0, r=0, t=30, b=0),
+        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
+        yaxis=dict(tickprefix='$', showgrid=True, gridcolor='rgba(128,128,128,0.2)', tickfont=dict(color='#333')),
+        xaxis=dict(showgrid=False, tickfont=dict(color='#333'))
+    )
+    st.plotly_chart(fig_sim, use_container_width=True)
 
-st.plotly_chart(fig_sim, use_container_width=True)
+with tab_montecarlo:
+    st.caption("1,000 simulaciones basadas en tu historial real de operaciones para predecir Riesgo de Ruina.")
+    
+    # Extraemos tus trades reales del panel
+    trades_reales = df_trades[col_beneficio].dropna().values
+    
+    if len(trades_reales) < 5:
+        st.warning("⚠️ Necesitas registrar al menos 5 operaciones reales en el panel para que la simulación de Montecarlo tenga sentido estadístico.")
+    else:
+        import numpy as np
+        
+        col_mc1, col_mc2, col_mc3 = st.columns(3)
+        with col_mc1:
+            cap_inicial_mc = st.number_input("Capital Cuenta Fondeo ($)", value=float(balance_inicial) if 'balance_inicial' in locals() and balance_inicial > 0 else 50000.0, step=1000.0, key="cap_mc")
+        with col_mc2:
+            n_trades_sim = st.number_input("Operaciones a simular", value=100, step=10, key="ops_mc")
+        with col_mc3:
+            limite_perdida = st.number_input("Pérdida Máx. Permitida (%)", value=10.0, step=1.0, help="Ejemplo: FTMO no permite perder más del 10%.")
+
+        # MAGIA MATEMÁTICA: 1000 simulaciones
+        num_simulaciones = 1000
+        simulaciones = np.random.choice(trades_reales, size=(num_simulaciones, int(n_trades_sim)), replace=True)
+        curvas_capital = np.cumsum(simulaciones, axis=1) + cap_inicial_mc
+        
+        # Cálculos de Riesgo
+        nivel_ruina = cap_inicial_mc * (1 - (limite_perdida / 100.0))
+        simulaciones_arruinadas = np.any(curvas_capital <= nivel_ruina, axis=1)
+        prob_ruina = (np.sum(simulaciones_arruinadas) / num_simulaciones) * 100
+        
+        # Gráfica Montecarlo
+        fig_mc = go.Figure()
+        
+        # Pintamos solo 50 "realidades" para no saturar el ordenador
+        for i in range(50):
+            fig_mc.add_trace(go.Scatter(
+                y=curvas_capital[i], mode='lines', 
+                line=dict(color='rgba(100, 100, 100, 0.15)'), showlegend=False, hoverinfo='skip'
+            ))
+            
+        # Pintamos la mediana (Lo más probable que ocurra)
+        mediana_curva = np.median(curvas_capital, axis=0)
+        fig_mc.add_trace(go.Scatter(
+            y=mediana_curva, mode='lines', name='Curva Mediana Esperada',
+            line=dict(color='#00994d', width=3)
+        ))
+        
+        # Pintamos la línea de RUINA (El abismo de la cuenta fondeada)
+        fig_mc.add_trace(go.Scatter(
+            x=[0, int(n_trades_sim)-1], y=[nivel_ruina, nivel_ruina],
+            mode='lines', name=f'Límite Ruina (-{limite_perdida}%)',
+            line=dict(color='#d93025', width=2, dash='dash')
+        ))
+        
+        fig_mc.update_layout(
+            height=400, margin=dict(l=0, r=0, t=30, b=0),
+            plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
+            yaxis=dict(tickprefix='$', showgrid=True, gridcolor='rgba(128,128,128,0.2)'),
+            xaxis=dict(showgrid=False, title="Número de Operaciones Futuras"),
+            showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+        )
+        
+        st.plotly_chart(fig_mc, use_container_width=True)
+        
+        # Veredicto de Riesgo
+        color_ruina = "red" if prob_ruina > 5 else "orange" if prob_ruina > 1 else "green"
+        st.markdown(f"### 🎲 Análisis de Resultados (1,000 Escenarios)")
+        st.markdown(f"- **Probabilidad de perder la cuenta (Riesgo de Ruina):** :{color_ruina}[**{prob_ruina:.1f}%**] *(Ideal: < 1%)*")
+        st.markdown(f"- **Capital esperado tras {int(n_trades_sim)} ops:** **${mediana_curva[-1]:,.2f}**")
 
 # ==========================================
 # 🤖 ASISTENTE DE TRADING IA (CEREBRO CUANTITATIVO)
