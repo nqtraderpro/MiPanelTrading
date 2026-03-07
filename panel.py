@@ -653,7 +653,12 @@ try:
                 
                 html_cal = f"""
                 <style>
-                    .cal-table {{ width: 100%; border-collapse: collapse; font-family: sans-serif; color: #eee; table-layout: fixed; margin-bottom: 10px; border: 2px solid #444; }}
+                    /* EL TRUCO ESTÁ AQUÍ: Contenedor con scroll horizontal */
+                    .table-container {{ width: 100%; overflow-x: auto; white-space: nowrap; margin-bottom: 10px; }}
+                    
+                    /* Forzamos un ancho mínimo para la tabla para que no se aplaste */
+                    .cal-table {{ width: 100%; min-width: 800px; border-collapse: collapse; font-family: sans-serif; color: #eee; table-layout: fixed; border: 2px solid #444; }}
+                    
                     .cal-th {{ background-color: #1e1e1e; padding: 10px; text-align: center; border: 1px solid #444; font-size: 13px; text-transform: uppercase; }}
                     .cal-th-total {{ background-color: #2b1d00; padding: 10px; text-align: center; border: 1px solid #444; color: #ffd700; white-space: nowrap; width: 120px; }}
                     .cal-td {{ border: 1px solid #444; height: 95px; vertical-align: top; padding: 6px; background-color: #0e1117; transition: 0.2s; }}
@@ -664,8 +669,10 @@ try:
                     .ops-count {{ color: #b3b3b3; text-align: center; margin-top: 3px; font-size: 12px; font-style: italic; }}
                     .neutral {{ color: #888; text-align: center; margin-top: 10px; font-size: 13px; }}
                 </style>
-                <table class="cal-table">
-                    <tr><th class="cal-th">Lun</th><th class="cal-th">Mar</th><th class="cal-th">Mié</th><th class="cal-th">Jue</th><th class="cal-th">Vie</th><th class="cal-th">Sáb</th><th class="cal-th">Dom</th><th class="cal-th-total">TOTAL SEMANA</th></tr>
+                
+                <div class="table-container">
+                    <table class="cal-table">
+                        <tr><th class="cal-th">Lun</th><th class="cal-th">Mar</th><th class="cal-th">Mié</th><th class="cal-th">Jue</th><th class="cal-th">Vie</th><th class="cal-th">Sáb</th><th class="cal-th">Dom</th><th class="cal-th-total">TOTAL SEMANA</th></tr>
                 """
                 for semana in mes_dias:
                     html_cal += "<tr>"
@@ -689,9 +696,11 @@ try:
                     signo = '+' if suma_semana > 0 else ''
                     html_cal += f"<td class='cal-td-total' style='color: {color_total}'>{signo}${suma_semana:,.2f}</td>"
                     html_cal += "</tr>"
-                html_cal += "</table>"
+                
+                html_cal += """
+                    </table>
+                </div> """
                 st.markdown(html_cal, unsafe_allow_html=True)
-
                 color_mes = "#00cc66" if total_pnl_mes >= 0 else "#ff4d4d"
                 signo_mes = "+" if total_pnl_mes >= 0 else ""
                 html_mes = f"""
