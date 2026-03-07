@@ -672,14 +672,12 @@ try:
                 <h2 style="margin:8px 0 0 0; color: {color_ruina}; font-size: 24px;">{texto_ruina}</h2>
                 <span style="color: #666; font-size: 13px;"><b>{trades_para_ruina}</b> pérdidas seguidas</span>
             </div>
-            
             <div style="flex: 1; min-width: 200px; background-color: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
                 <h4 style="margin:0; color: #333; font-family: sans-serif; font-size: 15px;">🎲 Z-Score (Patrones)</h4>
                 <span style="color: #666; font-size: 12px;">Probabilidad de Rachas</span>
                 <h2 style="margin:8px 0 0 0; color: {color_z}; font-size: 24px;">{z_score:.2f}</h2>
                 <span style="color: #666; font-size: 13px;"><b>{texto_z}</b></span>
             </div>
-
             <div style="flex: 1; min-width: 200px; background-color: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
                 <h4 style="margin:0; color: #333; font-family: sans-serif; font-size: 15px;">📈 Crecimiento Real</h4>
                 <span style="color: #666; font-size: 12px;">GHPR por operación</span>
