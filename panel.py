@@ -621,6 +621,10 @@ try:
     st.markdown("---")
     st.markdown("### 📊 Rendimiento Mensual")
     
+    # El diccionario traductor que faltaba
+    nombres_meses = {1: 'Ene', 2: 'Feb', 3: 'Mar', 4: 'Abr', 5: 'May', 6: 'Jun', 
+                     7: 'Jul', 8: 'Ago', 9: 'Sep', 10: 'Oct', 11: 'Nov', 12: 'Dic'}
+    
     # Preparamos los datos por mes
     df_meses = df_trades.groupby('Mes_Año_Sort')[col_beneficio].sum().reset_index()
     df_meses['Mes_Num'] = df_meses['Mes_Año_Sort'].dt.month
