@@ -548,10 +548,12 @@ try:
     pct_mes = (pnl_mes / eq_ini_mes) * 100
     pct_semana = (pnl_semana / eq_ini_semana) * 100
 
+    # Colores dinámicos
     c_sem = "#00ffaa" if pnl_semana >= 0 else "#ff3366"
     c_mes = "#00ffaa" if pnl_mes >= 0 else "#ff3366"
     c_ano = "#00ffaa" if pnl_año >= 0 else "#ff3366"
     c_neto = "#00ffaa" if beneficio_total >= 0 else "#ff3366"
+    c_dd = "#ff3366" if max_drawdown_dinero > 0 else "#00ffaa"
 
     st.markdown(f"""
     <div style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;">
@@ -591,8 +593,8 @@ try:
         </div>
         <div style="flex: 1; min-width: 140px; background-color: #0d1321; padding: 15px; border-radius: 4px; border: 1px solid rgba(0,255,170,0.15);">
             <p style="color: #5a6a7a; font-size: 10px; margin:0; font-family: 'JetBrains Mono', monospace; text-transform: uppercase;">Max Drawdown</p>
-            <h2 style="color: #ff3366; margin:5px 0 0 0; font-size: 22px; font-family: 'JetBrains Mono', monospace;">-${max_drawdown_dinero:,.2f}</h2>
-            <span style="color: #ff3366; font-size: 11px; font-family: 'JetBrains Mono', monospace;">-{max_drawdown_pct:.2f}%</span>
+            <h2 style="color: {c_dd}; margin:5px 0 0 0; font-size: 22px; font-family: 'JetBrains Mono', monospace;">-${max_drawdown_dinero:,.2f}</h2>
+            <span style="color: {c_dd}; font-size: 11px; font-family: 'JetBrains Mono', monospace;">-{max_drawdown_pct:.2f}%</span>
         </div>
         <div style="flex: 1; min-width: 140px; background-color: #0d1321; padding: 15px; border-radius: 4px; border: 1px solid rgba(0,255,170,0.15);">
             <p style="color: #5a6a7a; font-size: 10px; margin:0; font-family: 'JetBrains Mono', monospace; text-transform: uppercase;">Total Trades</p>
