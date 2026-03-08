@@ -20,6 +20,7 @@ st.set_page_config(page_title="Pro Trading Journal", layout="wide", initial_side
 st.title("📊 Panel Cuantitativo Multi-Cuenta Institucional")
 
 # ==========================================
+# ==========================================
 # INYECCIÓN DE TEMA: NAVEGANTE DEL CAOS
 # ==========================================
 st.markdown("""
@@ -52,8 +53,21 @@ h1, h2, h3, h4, h5, h6 {
     text-shadow: 0 0 10px rgba(0,255,170,0.2);
 }
 
-/* Forzar que los textos genéricos se lean en oscuro */
-.stMarkdown p { color: #e0e6ed !important; }
+/* Forzar textos genéricos a color claro (Gris/Blanco hueso) */
+.stMarkdown p, .stMarkdown div, .stMarkdown span, .stText, label { 
+    color: #e0e6ed !important; 
+}
+
+/* === HACK: RESCATAR LOS NÚMEROS DE STREAMLIT (st.metric) === */
+[data-testid="stMetricLabel"] * {
+    color: #00d4ff !important; /* Azul neón para los subtítulos de las métricas */
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 13px !important;
+}
+[data-testid="stMetricValue"] * {
+    color: #ffffff !important; /* Blanco brillante para los números grandes */
+    font-family: 'JetBrains Mono', monospace !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
