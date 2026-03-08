@@ -27,7 +27,7 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
-/* Fondo principal, cuadrícula y texto general */
+/* Fondo principal y cuadrícula */
 .stApp {
     background-color: #0a0e17;
     color: #e0e6ed;
@@ -53,22 +53,23 @@ h1, h2, h3, h4, h5, h6 {
     text-shadow: 0 0 10px rgba(0,255,170,0.2);
 }
 
-/* Forzar textos genéricos a color claro (Gris/Blanco hueso) */
-.stMarkdown p, .stMarkdown div, .stMarkdown span, .stText, label { 
-    color: #e0e6ed !important; 
+/* Textos genéricos sin forzar (para no matar el rojo/verde) */
+.stMarkdown p, .stText, label { 
+    color: #e0e6ed; 
 }
 
-/* === HACK: RESCATAR LOS NÚMEROS DE STREAMLIT (st.metric) === */
+/* HACK: RESCATAR LOS NÚMEROS DE STREAMLIT (st.metric) */
 [data-testid="stMetricLabel"] * {
-    color: #00d4ff !important; /* Azul neón para los subtítulos de las métricas */
+    color: #00d4ff !important;
     font-family: 'JetBrains Mono', monospace !important;
     font-size: 13px !important;
 }
 [data-testid="stMetricValue"] * {
-    color: #ffffff !important; /* Blanco brillante para los números grandes */
+    color: #ffffff !important;
     font-family: 'JetBrains Mono', monospace !important;
 }
-/* === HACK: CAJAS DE TEXTO (INPUTS) Y BOTONES === */
+
+/* HACK: CAJAS DE TEXTO (INPUTS) Y BOTONES */
 [data-baseweb="input"] {
     background-color: #0d1321 !important;
     border: 1px solid rgba(0,255,170,0.3) !important;
@@ -91,10 +92,8 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: 0 0 15px rgba(0,255,170,0.5) !important;
 }
 
-/* === HACK: PESTAÑAS (TABS) === */
-[data-baseweb="tab-list"] {
-    gap: 10px;
-}
+/* HACK: PESTAÑAS (TABS) */
+[data-baseweb="tab-list"] { gap: 10px; }
 [data-baseweb="tab"] {
     background-color: transparent !important;
     color: #5a6a7a !important;
@@ -107,7 +106,7 @@ h1, h2, h3, h4, h5, h6 {
     background-color: rgba(0, 212, 255, 0.05) !important;
 }
 
-/* === HACK: ALERTAS Y CAJAS INFO (st.info, st.warning) === */
+/* HACK: ALERTAS Y CAJAS INFO */
 [data-testid="stAlert"] {
     background-color: rgba(13, 19, 33, 0.8) !important;
     border: 1px solid rgba(0, 212, 255, 0.3) !important;
@@ -168,26 +167,27 @@ if modo_panel == "🏆 Gestión de Fondeos":
         tasa_retiro = (cuentas_retiro / total_evaluaciones * 100) if total_evaluaciones > 0 else 0
         
         # Colores dinámicos
-        pnl_color = "#28a745" if pnl_neto >= 0 else "#dc3545"
+        # Colores dinámicos
+        pnl_color = "#00ffaa" if pnl_neto >= 0 else "#ff3366"
 
         # --- 2. DISEÑO CLONADO (MÉTRICAS PRINCIPALES) ---
         st.markdown(f"""
         <div style="display: flex; justify-content: space-between; text-align: center; margin-bottom: 15px;">
-            <div style="background-color: #ffffff; padding: 20px; border-radius: 4px; width: 24%; border: 1px solid #e0e0e0;">
-                <p style="color: #6c757d; font-size: 13px; margin:0; text-transform: uppercase;">Capital Fondeado Actual</p>
-                <h2 style="color: #333333; margin:0; font-size: 36px; font-weight: bold;">${capital_actual:,.0f}</h2>
+            <div style="background-color: #0d1321; padding: 20px; border-radius: 4px; width: 24%; border: 1px solid rgba(0,255,170,0.15); box-shadow: inset 0 0 20px rgba(0,255,170,0.02);">
+                <p style="color: #00d4ff; font-size: 11px; margin:0; text-transform: uppercase; font-family: 'JetBrains Mono', monospace;">Capital Fondeado Actual</p>
+                <h2 style="color: #00ffaa; margin:0; font-size: 32px; font-weight: bold; font-family: 'JetBrains Mono', monospace;">${capital_actual:,.0f}</h2>
             </div>
-            <div style="background-color: #ffffff; padding: 20px; border-radius: 4px; width: 24%; border: 1px solid #e0e0e0;">
-                <p style="color: #6c757d; font-size: 13px; margin:0; text-transform: uppercase;">Retiros Totales</p>
-                <h2 style="color: #007bff; margin:0; font-size: 36px; font-weight: bold;">${retiros_totales:,.2f}</h2>
+            <div style="background-color: #0d1321; padding: 20px; border-radius: 4px; width: 24%; border: 1px solid rgba(0,255,170,0.15); box-shadow: inset 0 0 20px rgba(0,255,170,0.02);">
+                <p style="color: #00d4ff; font-size: 11px; margin:0; text-transform: uppercase; font-family: 'JetBrains Mono', monospace;">Retiros Totales</p>
+                <h2 style="color: #00d4ff; margin:0; font-size: 32px; font-weight: bold; font-family: 'JetBrains Mono', monospace;">${retiros_totales:,.2f}</h2>
             </div>
-            <div style="background-color: #ffffff; padding: 20px; border-radius: 4px; width: 24%; border: 1px solid #e0e0e0;">
-                <p style="color: #6c757d; font-size: 13px; margin:0; text-transform: uppercase;">Gasto en Pruebas</p>
-                <h2 style="color: #dc3545; margin:0; font-size: 36px; font-weight: bold;">-${gastos_totales:,.2f}</h2>
+            <div style="background-color: #0d1321; padding: 20px; border-radius: 4px; width: 24%; border: 1px solid rgba(0,255,170,0.15); box-shadow: inset 0 0 20px rgba(0,255,170,0.02);">
+                <p style="color: #00d4ff; font-size: 11px; margin:0; text-transform: uppercase; font-family: 'JetBrains Mono', monospace;">Gasto en Pruebas</p>
+                <h2 style="color: #ff3366; margin:0; font-size: 32px; font-weight: bold; font-family: 'JetBrains Mono', monospace;">-${gastos_totales:,.2f}</h2>
             </div>
-            <div style="background-color: #ffffff; padding: 20px; border-radius: 4px; width: 24%; border: 1px solid #e0e0e0;">
-                <p style="color: #6c757d; font-size: 13px; margin:0; text-transform: uppercase;">Beneficio Neto (PnL)</p>
-                <h2 style="color: {pnl_color}; margin:0; font-size: 36px; font-weight: bold;">${pnl_neto:,.2f}</h2>
+            <div style="background-color: #0d1321; padding: 20px; border-radius: 4px; width: 24%; border: 1px solid rgba(0,255,170,0.15); box-shadow: inset 0 0 20px rgba(0,255,170,0.02);">
+                <p style="color: #00d4ff; font-size: 11px; margin:0; text-transform: uppercase; font-family: 'JetBrains Mono', monospace;">Beneficio Neto (PnL)</p>
+                <h2 style="color: {pnl_color}; margin:0; font-size: 32px; font-weight: bold; font-family: 'JetBrains Mono', monospace;">${pnl_neto:,.2f}</h2>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -195,29 +195,29 @@ if modo_panel == "🏆 Gestión de Fondeos":
         # --- SUB-MÉTRICAS (RATIOS Y EMBUDO AVANZADO) ---
         st.markdown(f"""
         <div style="display: flex; justify-content: space-between; text-align: center; margin-bottom: 30px;">
-            <div style="background-color: #ffffff; padding: 10px; border-radius: 4px; width: 14%; border: 1px solid #e0e0e0;">
-                <p style="color: #a0a0a0; font-size: 11px; margin:0;">Cuentas Compradas</p>
-                <h3 style="color: #555555; margin:0; font-size: 24px;">{total_evaluaciones}</h3>
+            <div style="background-color: #0d1321; padding: 10px; border-radius: 4px; width: 14%; border: 1px solid rgba(0,255,170,0.15);">
+                <p style="color: #5a6a7a; font-size: 10px; margin:0; font-family: 'JetBrains Mono', monospace;">Cuentas Compradas</p>
+                <h3 style="color: #e0e6ed; margin:0; font-size: 20px; font-family: 'JetBrains Mono', monospace;">{total_evaluaciones}</h3>
             </div>
-            <div style="background-color: #ffffff; padding: 10px; border-radius: 4px; width: 14%; border: 1px solid #e0e0e0;">
-                <p style="color: #a0a0a0; font-size: 11px; margin:0;">Nº Payouts</p>
-                <h3 style="color: #28a745; margin:0; font-size: 24px;">{num_retiros}</h3>
+            <div style="background-color: #0d1321; padding: 10px; border-radius: 4px; width: 14%; border: 1px solid rgba(0,255,170,0.15);">
+                <p style="color: #5a6a7a; font-size: 10px; margin:0; font-family: 'JetBrains Mono', monospace;">Nº Payouts</p>
+                <h3 style="color: #00ffaa; margin:0; font-size: 20px; font-family: 'JetBrains Mono', monospace;">{num_retiros}</h3>
             </div>
-            <div style="background-color: #ffffff; padding: 10px; border-radius: 4px; width: 16%; border: 1px solid #e0e0e0;">
-                <p style="color: #a0a0a0; font-size: 11px; margin:0;">% Aprueba Fase 1</p>
-                <h3 style="color: #888888; margin:0; font-size: 24px;">{tasa_f1:.1f}%</h3>
+            <div style="background-color: #0d1321; padding: 10px; border-radius: 4px; width: 16%; border: 1px solid rgba(0,255,170,0.15);">
+                <p style="color: #5a6a7a; font-size: 10px; margin:0; font-family: 'JetBrains Mono', monospace;">% Aprueba Fase 1</p>
+                <h3 style="color: #e0e6ed; margin:0; font-size: 20px; font-family: 'JetBrains Mono', monospace;">{tasa_f1:.1f}%</h3>
             </div>
-            <div style="background-color: #ffffff; padding: 10px; border-radius: 4px; width: 16%; border: 1px solid #e0e0e0;">
-                <p style="color: #a0a0a0; font-size: 11px; margin:0;">% Aprueba Fase 2</p>
-                <h3 style="color: #888888; margin:0; font-size: 24px;">{tasa_f2:.1f}%</h3>
+            <div style="background-color: #0d1321; padding: 10px; border-radius: 4px; width: 16%; border: 1px solid rgba(0,255,170,0.15);">
+                <p style="color: #5a6a7a; font-size: 10px; margin:0; font-family: 'JetBrains Mono', monospace;">% Aprueba Fase 2</p>
+                <h3 style="color: #e0e6ed; margin:0; font-size: 20px; font-family: 'JetBrains Mono', monospace;">{tasa_f2:.1f}%</h3>
             </div>
-            <div style="background-color: #ffffff; padding: 10px; border-radius: 4px; width: 16%; border: 1px solid #e0e0e0;">
-                <p style="color: #a0a0a0; font-size: 11px; margin:0;">% Llegan a Fondeo</p>
-                <h3 style="color: #007bff; margin:0; font-size: 24px;">{tasa_fondeo:.1f}%</h3>
+            <div style="background-color: #0d1321; padding: 10px; border-radius: 4px; width: 16%; border: 1px solid rgba(0,255,170,0.15);">
+                <p style="color: #5a6a7a; font-size: 10px; margin:0; font-family: 'JetBrains Mono', monospace;">% Llegan a Fondeo</p>
+                <h3 style="color: #00d4ff; margin:0; font-size: 20px; font-family: 'JetBrains Mono', monospace;">{tasa_fondeo:.1f}%</h3>
             </div>
-            <div style="background-color: #ffffff; padding: 10px; border-radius: 4px; width: 16%; border: 1px solid #e0e0e0;">
-                <p style="color: #a0a0a0; font-size: 11px; margin:0;">% Llegan a Cobrar</p>
-                <h3 style="color: #28a745; margin:0; font-size: 24px;">{tasa_retiro:.1f}%</h3>
+            <div style="background-color: #0d1321; padding: 10px; border-radius: 4px; width: 16%; border: 1px solid rgba(0,255,170,0.15);">
+                <p style="color: #5a6a7a; font-size: 10px; margin:0; font-family: 'JetBrains Mono', monospace;">% Llegan a Cobrar</p>
+                <h3 style="color: #00ffaa; margin:0; font-size: 20px; font-family: 'JetBrains Mono', monospace;">{tasa_retiro:.1f}%</h3>
             </div>
         </div>
         """, unsafe_allow_html=True)
