@@ -857,7 +857,7 @@ try:
             cal = calendar.HTMLCalendar(calendar.MONDAY)
             mes_dias = cal.monthdayscalendar(year_sel, month_sel)
             
-html_cal = """
+            html_cal = """
             <style>
                 .table-container { width: 100%; overflow-x: auto; margin-bottom: 10px; }
                 .cal-table { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; color: #e0e6ed; table-layout: fixed; border: 1px solid rgba(0,255,170,0.15); background-color: #0d1321; }
