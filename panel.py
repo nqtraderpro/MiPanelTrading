@@ -68,9 +68,54 @@ h1, h2, h3, h4, h5, h6 {
     color: #ffffff !important; /* Blanco brillante para los números grandes */
     font-family: 'JetBrains Mono', monospace !important;
 }
+/* === HACK: CAJAS DE TEXTO (INPUTS) Y BOTONES === */
+[data-baseweb="input"] {
+    background-color: #0d1321 !important;
+    border: 1px solid rgba(0,255,170,0.3) !important;
+    border-radius: 4px !important;
+}
+[data-baseweb="input"] input {
+    color: #00ffaa !important;
+    font-family: 'JetBrains Mono', monospace !important;
+}
+.stButton button {
+    background-color: rgba(0,255,170,0.1) !important;
+    border: 1px solid #00ffaa !important;
+    color: #00ffaa !important;
+    font-family: 'JetBrains Mono', monospace !important;
+    transition: all 0.3s ease;
+}
+.stButton button:hover {
+    background-color: #00ffaa !important;
+    color: #0a0e17 !important;
+    box-shadow: 0 0 15px rgba(0,255,170,0.5) !important;
+}
+
+/* === HACK: PESTAÑAS (TABS) === */
+[data-baseweb="tab-list"] {
+    gap: 10px;
+}
+[data-baseweb="tab"] {
+    background-color: transparent !important;
+    color: #5a6a7a !important;
+    font-family: 'JetBrains Mono', monospace !important;
+    border-bottom: 2px solid transparent !important;
+}
+[data-baseweb="tab"][aria-selected="true"] {
+    color: #00d4ff !important;
+    border-bottom-color: #00d4ff !important;
+    background-color: rgba(0, 212, 255, 0.05) !important;
+}
+
+/* === HACK: ALERTAS Y CAJAS INFO (st.info, st.warning) === */
+[data-testid="stAlert"] {
+    background-color: rgba(13, 19, 33, 0.8) !important;
+    border: 1px solid rgba(0, 212, 255, 0.3) !important;
+    border-left: 4px solid #00d4ff !important;
+    color: #e0e6ed !important;
+}
 </style>
 """, unsafe_allow_html=True)
-
 # =========================================================
 # 🏆 INTERRUPTOR: MODO FONDEOS VS MODO TRADING
 # =========================================================
