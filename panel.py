@@ -559,19 +559,58 @@ try:
     pct_mes = (pnl_mes / eq_ini_mes) * 100
     pct_semana = (pnl_semana / eq_ini_semana) * 100
 
-    col_res1, col_res2, col_res3 = st.columns(3)
-    col_res1.metric(f"Esta Semana", f"${pnl_semana:,.2f}", f"{pct_semana:,.2f}%")
-    col_res2.metric(f"Este Mes", f"${pnl_mes:,.2f}", f"{pct_mes:,.2f}%")
-    col_res3.metric(f"Este Año", f"${pnl_año:,.2f}", f"{pct_año:,.2f}%")
+    c_sem = "#00ffaa" if pnl_semana >= 0 else "#ff3366"
+    c_mes = "#00ffaa" if pnl_mes >= 0 else "#ff3366"
+    c_ano = "#00ffaa" if pnl_año >= 0 else "#ff3366"
+    c_neto = "#00ffaa" if beneficio_total >= 0 else "#ff3366"
+
+    st.markdown(f"""
+    <div style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 200px; background-color: #0d1321; padding: 20px; border-radius: 4px; border: 1px solid rgba(0,255,170,0.15); box-shadow: inset 0 0 20px rgba(0,255,170,0.02);">
+            <p style="color: #00d4ff; font-size: 11px; margin:0; text-transform: uppercase; font-family: 'JetBrains Mono', monospace;">ESTA SEMANA</p>
+            <h2 style="color: {c_sem}; margin:8px 0 0 0; font-size: 32px; font-weight: bold; font-family: 'JetBrains Mono', monospace; text-shadow: 0 0 8px {c_sem}40;">${pnl_semana:,.2f}</h2>
+            <span style="color: {c_sem}; font-size: 13px; font-family: 'JetBrains Mono', monospace;">{pct_semana:+.2f}%</span>
+        </div>
+        <div style="flex: 1; min-width: 200px; background-color: #0d1321; padding: 20px; border-radius: 4px; border: 1px solid rgba(0,255,170,0.15); box-shadow: inset 0 0 20px rgba(0,255,170,0.02);">
+            <p style="color: #00d4ff; font-size: 11px; margin:0; text-transform: uppercase; font-family: 'JetBrains Mono', monospace;">ESTE MES</p>
+            <h2 style="color: {c_mes}; margin:8px 0 0 0; font-size: 32px; font-weight: bold; font-family: 'JetBrains Mono', monospace; text-shadow: 0 0 8px {c_mes}40;">${pnl_mes:,.2f}</h2>
+            <span style="color: {c_mes}; font-size: 13px; font-family: 'JetBrains Mono', monospace;">{pct_mes:+.2f}%</span>
+        </div>
+        <div style="flex: 1; min-width: 200px; background-color: #0d1321; padding: 20px; border-radius: 4px; border: 1px solid rgba(0,255,170,0.15); box-shadow: inset 0 0 20px rgba(0,255,170,0.02);">
+            <p style="color: #00d4ff; font-size: 11px; margin:0; text-transform: uppercase; font-family: 'JetBrains Mono', monospace;">ESTE AÑO</p>
+            <h2 style="color: {c_ano}; margin:8px 0 0 0; font-size: 32px; font-weight: bold; font-family: 'JetBrains Mono', monospace; text-shadow: 0 0 8px {c_ano}40;">${pnl_año:,.2f}</h2>
+            <span style="color: {c_ano}; font-size: 13px; font-family: 'JetBrains Mono', monospace;">{pct_año:+.2f}%</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
     st.markdown("---")
-    kpi1, kpi2, kpi3, kpi4, kpi5 = st.columns(5)
-    kpi1.metric("Beneficio Neto (Trading)", f"${beneficio_total:,.2f}")
-    kpi2.metric("Win Rate Total", f"{win_rate:.1f}%")
-    kpi3.metric("Profit Factor", f"{profit_factor:.2f}")
-    kpi4.metric("Max Drawdown", f"-${max_drawdown_dinero:,.2f}", f"-{max_drawdown_pct:.2f}%", delta_color="inverse")
-    kpi5.metric("Total Trades", f"{total_trades}")
-
+    
+    st.markdown(f"""
+    <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 140px; background-color: #0d1321; padding: 15px; border-radius: 4px; border: 1px solid rgba(0,255,170,0.15);">
+            <p style="color: #5a6a7a; font-size: 10px; margin:0; font-family: 'JetBrains Mono', monospace; text-transform: uppercase;">Beneficio Neto</p>
+            <h2 style="color: {c_neto}; margin:5px 0 0 0; font-size: 22px; font-family: 'JetBrains Mono', monospace;">${beneficio_total:,.2f}</h2>
+        </div>
+        <div style="flex: 1; min-width: 140px; background-color: #0d1321; padding: 15px; border-radius: 4px; border: 1px solid rgba(0,255,170,0.15);">
+            <p style="color: #5a6a7a; font-size: 10px; margin:0; font-family: 'JetBrains Mono', monospace; text-transform: uppercase;">Win Rate</p>
+            <h2 style="color: #e0e6ed; margin:5px 0 0 0; font-size: 22px; font-family: 'JetBrains Mono', monospace;">{win_rate:.1f}%</h2>
+        </div>
+        <div style="flex: 1; min-width: 140px; background-color: #0d1321; padding: 15px; border-radius: 4px; border: 1px solid rgba(0,255,170,0.15);">
+            <p style="color: #5a6a7a; font-size: 10px; margin:0; font-family: 'JetBrains Mono', monospace; text-transform: uppercase;">Profit Factor</p>
+            <h2 style="color: #e0e6ed; margin:5px 0 0 0; font-size: 22px; font-family: 'JetBrains Mono', monospace;">{profit_factor:.2f}</h2>
+        </div>
+        <div style="flex: 1; min-width: 140px; background-color: #0d1321; padding: 15px; border-radius: 4px; border: 1px solid rgba(0,255,170,0.15);">
+            <p style="color: #5a6a7a; font-size: 10px; margin:0; font-family: 'JetBrains Mono', monospace; text-transform: uppercase;">Max Drawdown</p>
+            <h2 style="color: #ff3366; margin:5px 0 0 0; font-size: 22px; font-family: 'JetBrains Mono', monospace;">-${max_drawdown_dinero:,.2f}</h2>
+            <span style="color: #ff3366; font-size: 11px; font-family: 'JetBrains Mono', monospace;">-{max_drawdown_pct:.2f}%</span>
+        </div>
+        <div style="flex: 1; min-width: 140px; background-color: #0d1321; padding: 15px; border-radius: 4px; border: 1px solid rgba(0,255,170,0.15);">
+            <p style="color: #5a6a7a; font-size: 10px; margin:0; font-family: 'JetBrains Mono', monospace; text-transform: uppercase;">Total Trades</p>
+            <h2 style="color: #e0e6ed; margin:5px 0 0 0; font-size: 22px; font-family: 'JetBrains Mono', monospace;">{total_trades}</h2>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
     # ==========================================
     # 7. BLOQUE INSTITUCIONAL Y ESTADÍSTICAS BASE
     # ==========================================
