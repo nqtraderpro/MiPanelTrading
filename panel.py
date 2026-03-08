@@ -19,6 +19,43 @@ IDS_DRIVE = ["1pnzJa0_Pupq0rP9XgOup2d2J7_OJVfd6", "1gXODXjDSf96Ggk-oGCsWOtSty-3Y
 st.set_page_config(page_title="Pro Trading Journal", layout="wide", initial_sidebar_state="expanded")
 st.title("📊 Panel Cuantitativo Multi-Cuenta Institucional")
 
+# ==========================================
+# INYECCIÓN DE TEMA: NAVEGANTE DEL CAOS
+# ==========================================
+st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+/* Fondo principal, cuadrícula y texto general */
+.stApp {
+    background-color: #0a0e17;
+    color: #e0e6ed;
+    font-family: 'Inter', sans-serif;
+}
+.stApp::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.04;
+    background-image: linear-gradient(#00ffaa 1px, transparent 1px), linear-gradient(90deg, #00ffaa 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+
+/* Barra lateral oscura */
+[data-testid="stSidebar"] {
+    background-color: #0d1321 !important;
+    border-right: 1px solid rgba(0,255,170,0.15);
+}
+
+/* Títulos estilo Terminal */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'JetBrains Mono', monospace !important;
+    color: #00ffaa !important;
+    letter-spacing: 1px;
+    text-shadow: 0 0 10px rgba(0,255,170,0.2);
+}
+
+/* Forzar que los textos genéricos se lean en oscuro */
+.stMarkdown p { color: #e0e6ed !important; }
+</style>
+""", unsafe_allow_html=True)
 
 # =========================================================
 # 🏆 INTERRUPTOR: MODO FONDEOS VS MODO TRADING
@@ -663,26 +700,26 @@ try:
         multiplicadores = 1 + retornos_pct
         ghpr = (np.prod(multiplicadores) ** (1/len(multiplicadores)) - 1) * 100 if len(multiplicadores) > 0 else 0.0
 
-        # --- RENDERIZADO DEL WIDGET TRIPLE ---
+        # --- RENDERIZADO DEL WIDGET TRIPLE (ESTILO NAVEGANTE) ---
         st.markdown(f"""
-        <div style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;">
-            <div style="flex: 1; min-width: 200px; background-color: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                <h4 style="margin:0; color: #333; font-family: sans-serif; font-size: 15px;">🏥 Riesgo de Ruina</h4>
-                <span style="color: #666; font-size: 12px;">Límite -10% Cuenta</span>
-                <h2 style="margin:8px 0 0 0; color: {color_ruina}; font-size: 24px;">{texto_ruina}</h2>
-                <span style="color: #666; font-size: 13px;"><b>{trades_para_ruina}</b> pérdidas seguidas</span>
+        <div style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; position: relative; z-index: 1;">
+            <div style="flex: 1; min-width: 200px; background-color: #0d1321; padding: 20px; border: 1px solid rgba(0,255,170,0.15); box-shadow: inset 0 0 20px rgba(0,255,170,0.02); border-radius: 4px;">
+                <h4 style="margin:0; color: #00ffaa; font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 1.5px;">&#9678; RIESGO DE RUINA</h4>
+                <span style="color: #5a6a7a; font-size: 10px; font-family: 'JetBrains Mono', monospace;">LÍMITE -10% CUENTA</span>
+                <h2 style="margin:8px 0 0 0; color: {color_ruina}; font-size: 26px; font-family: 'JetBrains Mono', monospace;">{texto_ruina}</h2>
+                <span style="color: #e0e6ed; font-size: 12px;"><b>{trades_para_ruina}</b> pérdidas seguidas</span>
             </div>
-            <div style="flex: 1; min-width: 200px; background-color: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                <h4 style="margin:0; color: #333; font-family: sans-serif; font-size: 15px;">🎲 Z-Score (Patrones)</h4>
-                <span style="color: #666; font-size: 12px;">Probabilidad de Rachas</span>
-                <h2 style="margin:8px 0 0 0; color: {color_z}; font-size: 24px;">{z_score:.2f}</h2>
-                <span style="color: #666; font-size: 13px;"><b>{texto_z}</b></span>
+            <div style="flex: 1; min-width: 200px; background-color: #0d1321; padding: 20px; border: 1px solid rgba(0,255,170,0.15); box-shadow: inset 0 0 20px rgba(0,255,170,0.02); border-radius: 4px;">
+                <h4 style="margin:0; color: #00d4ff; font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 1.5px;">&#9678; Z-SCORE (RACHAS)</h4>
+                <span style="color: #5a6a7a; font-size: 10px; font-family: 'JetBrains Mono', monospace;">PATRÓN ESTADÍSTICO</span>
+                <h2 style="margin:8px 0 0 0; color: {color_z}; font-size: 26px; font-family: 'JetBrains Mono', monospace;">{z_score:.2f}</h2>
+                <span style="color: #e0e6ed; font-size: 12px;"><b>{texto_z}</b></span>
             </div>
-            <div style="flex: 1; min-width: 200px; background-color: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                <h4 style="margin:0; color: #333; font-family: sans-serif; font-size: 15px;">📈 Crecimiento Real</h4>
-                <span style="color: #666; font-size: 12px;">GHPR por operación</span>
-                <h2 style="margin:8px 0 0 0; color: #00994d; font-size: 24px;">{ghpr:.2f}%</h2>
-                <span style="color: #666; font-size: 13px;">AHPR (Media): <b>{ahpr:.2f}%</b></span>
+            <div style="flex: 1; min-width: 200px; background-color: #0d1321; padding: 20px; border: 1px solid rgba(0,255,170,0.15); box-shadow: inset 0 0 20px rgba(0,255,170,0.02); border-radius: 4px;">
+                <h4 style="margin:0; color: #ffaa00; font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 1.5px;">&#9678; CRECIMIENTO REAL</h4>
+                <span style="color: #5a6a7a; font-size: 10px; font-family: 'JetBrains Mono', monospace;">GHPR POR OPERACIÓN</span>
+                <h2 style="margin:8px 0 0 0; color: #00ffaa; font-size: 26px; font-family: 'JetBrains Mono', monospace;">{ghpr:.2f}%</h2>
+                <span style="color: #e0e6ed; font-size: 12px;">AHPR: <b>{ahpr:.2f}%</b></span>
             </div>
         </div>
         """, unsafe_allow_html=True)
