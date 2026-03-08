@@ -857,22 +857,23 @@ try:
             cal = calendar.HTMLCalendar(calendar.MONDAY)
             mes_dias = cal.monthdayscalendar(year_sel, month_sel)
             
-            html_cal = """
+html_cal = """
             <style>
                 .table-container { width: 100%; overflow-x: auto; margin-bottom: 10px; }
-                .cal-table { width: 100%; border-collapse: collapse; font-family: sans-serif; color: #333; table-layout: fixed; border: 2px solid #ddd; background-color: #fff; }
+                .cal-table { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; color: #e0e6ed; table-layout: fixed; border: 1px solid rgba(0,255,170,0.15); background-color: #0d1321; }
                 @media screen and (max-width: 768px) {
                     .cal-table { min-width: 800px; }
                 }
-                .cal-th { background-color: #f4f6f9; padding: 10px; text-align: center; border: 1px solid #ddd; font-size: 13px; text-transform: uppercase; font-weight: bold; color: #555; }
-                .cal-th-total { background-color: #fff8e1; padding: 10px; text-align: center; border: 1px solid #ddd; color: #b8860b; white-space: nowrap; width: 120px; }
-                .cal-td { border: 1px solid #eee; height: 95px; vertical-align: top; padding: 6px; background-color: #ffffff; transition: 0.2s; }
-                .cal-td-total { border: 1px solid #ddd; height: 95px; vertical-align: middle; padding: 10px; background-color: #fafafa; font-size: 16px; font-weight: bold; text-align: center; white-space: nowrap; }
-                .day-num { font-size: 14px; font-weight: bold; color: #666; margin-bottom: 5px; border-bottom: 1px solid #f0f0f0; padding-bottom: 3px; }
-                .profit { color: #00994d; font-weight: bold; text-align: center; margin-top: 5px; font-size: 15px; }
-                .loss { color: #d93025; font-weight: bold; text-align: center; margin-top: 5px; font-size: 15px; }
-                .ops-count { color: #888; text-align: center; margin-top: 3px; font-size: 12px; font-style: italic; }
-                .neutral { color: #aaa; text-align: center; margin-top: 10px; font-size: 13px; }
+                .cal-th { background-color: rgba(0,255,170,0.05); padding: 10px; text-align: center; border: 1px solid rgba(0,255,170,0.15); font-size: 11px; text-transform: uppercase; font-weight: bold; color: #00ffaa; letter-spacing: 1px; }
+                .cal-th-total { background-color: rgba(0,212,255,0.05); padding: 10px; text-align: center; border: 1px solid rgba(0,255,170,0.15); color: #00d4ff; white-space: nowrap; width: 120px; font-size: 11px; letter-spacing: 1px; }
+                .cal-td { border: 1px solid rgba(0,255,170,0.1); height: 95px; vertical-align: top; padding: 6px; background-color: #0d1321; transition: 0.2s; }
+                .cal-td:hover { background-color: rgba(0,255,170,0.02); }
+                .cal-td-total { border: 1px solid rgba(0,255,170,0.15); height: 95px; vertical-align: middle; padding: 10px; background-color: rgba(0,255,170,0.02); font-size: 16px; font-weight: bold; text-align: center; white-space: nowrap; }
+                .day-num { font-size: 12px; font-weight: bold; color: #5a6a7a; margin-bottom: 5px; border-bottom: 1px solid rgba(0,255,170,0.1); padding-bottom: 3px; }
+                .profit { color: #00ffaa; font-weight: bold; text-align: center; margin-top: 5px; font-size: 15px; text-shadow: 0 0 5px rgba(0,255,170,0.3); }
+                .loss { color: #ff3366; font-weight: bold; text-align: center; margin-top: 5px; font-size: 15px; text-shadow: 0 0 5px rgba(255,51,102,0.3); }
+                .ops-count { color: #5a6a7a; text-align: center; margin-top: 3px; font-size: 10px; font-style: italic; }
+                .neutral { color: #5a6a7a; text-align: center; margin-top: 10px; font-size: 13px; }
             </style>
             <div class="table-container">
                 <table class="cal-table">
@@ -883,8 +884,8 @@ try:
                 suma_semana = 0
                 for dia in semana:
                     if dia == 0:
-                        # Fondo gris claro para los días vacíos
-                        html_cal += "<td class='cal-td' style='background-color: #f9f9f9;'></td>"
+                        # Fondo super oscuro para los días vacíos
+                        html_cal += "<td class='cal-td' style='background-color: #0a0e17;'></td>"
                     else:
                         datos_dia = pnl_por_dia.get(dia, {col_beneficio: 0, 'Cuenta': 0})
                         resultado = datos_dia[col_beneficio]
@@ -897,7 +898,7 @@ try:
                         elif resultado < 0: html_cal += f"<td class='cal-td'><div class='day-num'>{dia}</div><div class='loss'>-${abs(resultado):,.2f}</div>{texto_ops}</td>"
                         else: html_cal += f"<td class='cal-td'><div class='day-num'>{dia}</div><div class='neutral'>-</div></td>"
                 
-                color_total = '#00994d' if suma_semana > 0 else '#d93025' if suma_semana < 0 else '#888'
+                color_total = '#00ffaa' if suma_semana > 0 else '#ff3366' if suma_semana < 0 else '#5a6a7a'
                 signo = '+' if suma_semana > 0 else ''
                 html_cal += f"<td class='cal-td-total' style='color: {color_total}'>{signo}${suma_semana:,.2f}</td>"
                 html_cal += "</tr>"
@@ -908,13 +909,13 @@ try:
             """
             st.markdown(html_cal, unsafe_allow_html=True)
 
-            color_mes = "#00994d" if total_pnl_mes >= 0 else "#d93025"
+            color_mes = "#00ffaa" if total_pnl_mes >= 0 else "#ff3366"
             signo_mes = "+" if total_pnl_mes >= 0 else ""
             html_mes = f"""
-            <div style="background-color: #f4f6f9; padding: 15px; border-radius: 6px; border: 1px solid #ddd; text-align: center; margin-top: 5px;">
-                <span style="color: #333; font-size: 16px; font-weight: bold; text-transform: uppercase;">Total {mes_seleccionado}:</span>
-                <span style="color: {color_mes}; font-size: 24px; font-weight: bold; margin-left: 15px;">{signo_mes}${total_pnl_mes:,.2f}</span>
-                <span style="color: #666; font-size: 14px; margin-left: 10px;">({total_ops_mes} operaciones)</span>
+            <div style="background-color: #0d1321; padding: 15px; border-radius: 4px; border: 1px solid rgba(0,255,170,0.15); text-align: center; margin-top: 5px; box-shadow: inset 0 0 20px rgba(0,255,170,0.02);">
+                <span style="color: #00d4ff; font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Total {mes_seleccionado}:</span>
+                <span style="color: {color_mes}; font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: bold; margin-left: 15px; text-shadow: 0 0 8px {color_mes}40;">{signo_mes}${total_pnl_mes:,.2f}</span>
+                <span style="color: #5a6a7a; font-family: 'JetBrains Mono', monospace; font-size: 12px; margin-left: 10px;">({total_ops_mes} operaciones)</span>
             </div>
             """
             st.markdown(html_mes, unsafe_allow_html=True)
