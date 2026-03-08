@@ -45,28 +45,17 @@ st.markdown("""
     border-right: 1px solid rgba(0,255,170,0.15);
 }
 
-/* Títulos estilo Terminal */
+/* Títulos estilo Terminal (SIN el !important en el color para respetar el rojo) */
 h1, h2, h3, h4, h5, h6 {
     font-family: 'JetBrains Mono', monospace !important;
-    color: #00ffaa !important;
+    color: #00ffaa;
     letter-spacing: 1px;
     text-shadow: 0 0 10px rgba(0,255,170,0.2);
 }
 
-/* Textos genéricos sin forzar (para no matar el rojo/verde) */
+/* Textos genéricos */
 .stMarkdown p, .stText, label { 
     color: #e0e6ed; 
-}
-
-/* HACK: RESCATAR LOS NÚMEROS DE STREAMLIT (st.metric) */
-[data-testid="stMetricLabel"] * {
-    color: #00d4ff !important;
-    font-family: 'JetBrains Mono', monospace !important;
-    font-size: 13px !important;
-}
-[data-testid="stMetricValue"] * {
-    color: #ffffff !important;
-    font-family: 'JetBrains Mono', monospace !important;
 }
 
 /* HACK: CAJAS DE TEXTO (INPUTS) Y BOTONES */
