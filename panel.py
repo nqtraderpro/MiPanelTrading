@@ -673,92 +673,92 @@ try:
 
     # === RENDERIZADO HTML DE LAS TARJETAS (SVG GAUGES) ===
     st.markdown(f"""
-    <div style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;">
-        
-        <div style="flex: 1; min-width: 250px; background-color: #0d1321; padding: 25px 20px; border-radius: 8px; border: 1px solid rgba(0,255,170,0.15); box-shadow: inset 0 0 20px rgba(0,255,170,0.02); display: flex; flex-direction: column; align-items: center;">
-            <h4 style="color: #e0e6ed; font-family: 'Inter', sans-serif; font-size: 15px; margin: 0 0 20px 0; align-self: flex-start;">Análisis corto</h4>
-            <div style="position: relative; width: 180px; height: 90px;">
-                <svg viewBox="0 0 200 100" width="180" height="90">
-                   <path d="M 30 90 A 70 70 0 0 1 170 90" fill="none" stroke="#ff3366" stroke-width="18" stroke-linecap="butt" pathLength="100" />
-                   <path d="M 170 90 A 70 70 0 0 0 30 90" fill="none" stroke="#00ffaa" stroke-width="18" stroke-linecap="butt" pathLength="100" stroke-dasharray="{short_wr} 100" />
-                </svg>
-                <div style="position: absolute; bottom: -5px; left: 0; right: 0; text-align: center;">
-                    <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom: 2px;">Ganancia</span>
-                    <span style="color: {c_short}; font-size: 20px; font-weight: bold; font-family: 'JetBrains Mono', monospace;">${short_net:,.2f}</span>
-                </div>
-            </div>
-            <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
-                <div style="text-align: center;">
-                    <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom:4px;">Ganadas ({short_wins})</span>
-                    <span style="color: #e0e6ed; font-size: 12px; font-family: 'JetBrains Mono', monospace;">${short_gw:,.2f}</span>
-                </div>
-                <div style="text-align: center;">
-                    <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom:4px;">Tasa acierto</span>
-                    <span style="color: #e0e6ed; font-size: 12px; font-family: 'JetBrains Mono', monospace;">{short_wr:.1f}%</span>
-                </div>
-                <div style="text-align: center;">
-                    <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom:4px;">Pérdidas ({short_losses})</span>
-                    <span style="color: #e0e6ed; font-size: 12px; font-family: 'JetBrains Mono', monospace;">${short_gl:,.2f}</span>
-                </div>
+<div style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;">
+    
+    <div style="flex: 1; min-width: 250px; background-color: #0d1321; padding: 25px 20px; border-radius: 8px; border: 1px solid rgba(0,255,170,0.15); box-shadow: inset 0 0 20px rgba(0,255,170,0.02); display: flex; flex-direction: column; align-items: center;">
+        <h4 style="color: #e0e6ed; font-family: 'Inter', sans-serif; font-size: 15px; margin: 0 0 20px 0; align-self: flex-start;">Análisis corto</h4>
+        <div style="position: relative; width: 180px; height: 90px;">
+            <svg viewBox="0 0 200 100" width="180" height="90">
+               <path d="M 30 90 A 70 70 0 0 1 170 90" fill="none" stroke="#ff3366" stroke-width="18" stroke-linecap="butt" pathLength="100" />
+               <path d="M 170 90 A 70 70 0 0 0 30 90" fill="none" stroke="#00ffaa" stroke-width="18" stroke-linecap="butt" pathLength="100" stroke-dasharray="{short_wr} 100" />
+            </svg>
+            <div style="position: absolute; bottom: -5px; left: 0; right: 0; text-align: center;">
+                <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom: 2px;">Ganancia</span>
+                <span style="color: {c_short}; font-size: 20px; font-weight: bold; font-family: 'JetBrains Mono', monospace;">${short_net:,.2f}</span>
             </div>
         </div>
-
-        <div style="flex: 1; min-width: 250px; background-color: #0d1321; padding: 25px 20px; border-radius: 8px; border: 1px solid rgba(0,255,170,0.15); box-shadow: inset 0 0 20px rgba(0,255,170,0.02); display: flex; flex-direction: column; align-items: center;">
-            <h4 style="color: #e0e6ed; font-family: 'Inter', sans-serif; font-size: 15px; margin: 0 0 20px 0; align-self: flex-start;">Rentabilidad</h4>
-            <div style="position: relative; width: 180px; height: 90px;">
-                <svg viewBox="0 0 200 100" width="180" height="90">
-                   <path d="M 30 90 A 70 70 0 0 1 170 90" fill="none" stroke="#ff3366" stroke-width="18" stroke-linecap="butt" pathLength="100" />
-                   <path d="M 170 90 A 70 70 0 0 0 30 90" fill="none" stroke="#00ffaa" stroke-width="18" stroke-linecap="butt" pathLength="100" stroke-dasharray="{win_rate} 100" />
-                </svg>
-                <div style="position: absolute; bottom: -5px; left: 0; right: 0; text-align: center;">
-                    <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom: 2px;">Total de operaciones</span>
-                    <span style="color: #e0e6ed; font-size: 20px; font-weight: bold; font-family: 'JetBrains Mono', monospace;">{total_trades}</span>
-                </div>
+        <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
+            <div style="text-align: center;">
+                <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom:4px;">Ganadas ({short_wins})</span>
+                <span style="color: #e0e6ed; font-size: 12px; font-family: 'JetBrains Mono', monospace;">${short_gw:,.2f}</span>
             </div>
-            <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
-                <div style="text-align: center;">
-                    <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom:4px;">Win Rate</span>
-                    <span style="color: #00ffaa; font-size: 12px; font-family: 'JetBrains Mono', monospace;">{win_rate:.1f}%</span>
-                    <span style="color: #5a6a7a; font-size: 10px; display: block; margin-top:2px;">Ganadas: {total_wins}</span>
-                </div>
-                <div style="text-align: center;">
-                    <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom:4px;">Loss Rate</span>
-                    <span style="color: #ff3366; font-size: 12px; font-family: 'JetBrains Mono', monospace;">{overall_lr:.1f}%</span>
-                    <span style="color: #5a6a7a; font-size: 10px; display: block; margin-top:2px;">Pérdidas: {total_losses}</span>
-                </div>
+            <div style="text-align: center;">
+                <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom:4px;">Tasa acierto</span>
+                <span style="color: #e0e6ed; font-size: 12px; font-family: 'JetBrains Mono', monospace;">{short_wr:.1f}%</span>
+            </div>
+            <div style="text-align: center;">
+                <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom:4px;">Pérdidas ({short_losses})</span>
+                <span style="color: #e0e6ed; font-size: 12px; font-family: 'JetBrains Mono', monospace;">${short_gl:,.2f}</span>
             </div>
         </div>
-
-        <div style="flex: 1; min-width: 250px; background-color: #0d1321; padding: 25px 20px; border-radius: 8px; border: 1px solid rgba(0,255,170,0.15); box-shadow: inset 0 0 20px rgba(0,255,170,0.02); display: flex; flex-direction: column; align-items: center;">
-            <h4 style="color: #e0e6ed; font-family: 'Inter', sans-serif; font-size: 15px; margin: 0 0 20px 0; align-self: flex-start;">Análisis largo</h4>
-            <div style="position: relative; width: 180px; height: 90px;">
-                <svg viewBox="0 0 200 100" width="180" height="90">
-                   <path d="M 30 90 A 70 70 0 0 1 170 90" fill="none" stroke="#ff3366" stroke-width="18" stroke-linecap="butt" pathLength="100" />
-                   <path d="M 170 90 A 70 70 0 0 0 30 90" fill="none" stroke="#00ffaa" stroke-width="18" stroke-linecap="butt" pathLength="100" stroke-dasharray="{long_wr} 100" />
-                </svg>
-                <div style="position: absolute; bottom: -5px; left: 0; right: 0; text-align: center;">
-                    <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom: 2px;">Ganancia</span>
-                    <span style="color: {c_long}; font-size: 20px; font-weight: bold; font-family: 'JetBrains Mono', monospace;">${long_net:,.2f}</span>
-                </div>
-            </div>
-            <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
-                <div style="text-align: center;">
-                    <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom:4px;">Ganadas ({long_wins})</span>
-                    <span style="color: #e0e6ed; font-size: 12px; font-family: 'JetBrains Mono', monospace;">${long_gw:,.2f}</span>
-                </div>
-                <div style="text-align: center;">
-                    <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom:4px;">Tasa acierto</span>
-                    <span style="color: #e0e6ed; font-size: 12px; font-family: 'JetBrains Mono', monospace;">{long_wr:.1f}%</span>
-                </div>
-                <div style="text-align: center;">
-                    <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom:4px;">Pérdidas ({long_losses})</span>
-                    <span style="color: #e0e6ed; font-size: 12px; font-family: 'JetBrains Mono', monospace;">${long_gl:,.2f}</span>
-                </div>
-            </div>
-        </div>
-
     </div>
-    """, unsafe_allow_html=True)
+
+    <div style="flex: 1; min-width: 250px; background-color: #0d1321; padding: 25px 20px; border-radius: 8px; border: 1px solid rgba(0,255,170,0.15); box-shadow: inset 0 0 20px rgba(0,255,170,0.02); display: flex; flex-direction: column; align-items: center;">
+        <h4 style="color: #e0e6ed; font-family: 'Inter', sans-serif; font-size: 15px; margin: 0 0 20px 0; align-self: flex-start;">Rentabilidad</h4>
+        <div style="position: relative; width: 180px; height: 90px;">
+            <svg viewBox="0 0 200 100" width="180" height="90">
+               <path d="M 30 90 A 70 70 0 0 1 170 90" fill="none" stroke="#ff3366" stroke-width="18" stroke-linecap="butt" pathLength="100" />
+               <path d="M 170 90 A 70 70 0 0 0 30 90" fill="none" stroke="#00ffaa" stroke-width="18" stroke-linecap="butt" pathLength="100" stroke-dasharray="{win_rate} 100" />
+            </svg>
+            <div style="position: absolute; bottom: -5px; left: 0; right: 0; text-align: center;">
+                <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom: 2px;">Total de operaciones</span>
+                <span style="color: #e0e6ed; font-size: 20px; font-weight: bold; font-family: 'JetBrains Mono', monospace;">{total_trades}</span>
+            </div>
+        </div>
+        <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
+            <div style="text-align: center;">
+                <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom:4px;">Win Rate</span>
+                <span style="color: #00ffaa; font-size: 12px; font-family: 'JetBrains Mono', monospace;">{win_rate:.1f}%</span>
+                <span style="color: #5a6a7a; font-size: 10px; display: block; margin-top:2px;">Ganadas: {total_wins}</span>
+            </div>
+            <div style="text-align: center;">
+                <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom:4px;">Loss Rate</span>
+                <span style="color: #ff3366; font-size: 12px; font-family: 'JetBrains Mono', monospace;">{overall_lr:.1f}%</span>
+                <span style="color: #5a6a7a; font-size: 10px; display: block; margin-top:2px;">Pérdidas: {total_losses}</span>
+            </div>
+        </div>
+    </div>
+
+    <div style="flex: 1; min-width: 250px; background-color: #0d1321; padding: 25px 20px; border-radius: 8px; border: 1px solid rgba(0,255,170,0.15); box-shadow: inset 0 0 20px rgba(0,255,170,0.02); display: flex; flex-direction: column; align-items: center;">
+        <h4 style="color: #e0e6ed; font-family: 'Inter', sans-serif; font-size: 15px; margin: 0 0 20px 0; align-self: flex-start;">Análisis largo</h4>
+        <div style="position: relative; width: 180px; height: 90px;">
+            <svg viewBox="0 0 200 100" width="180" height="90">
+               <path d="M 30 90 A 70 70 0 0 1 170 90" fill="none" stroke="#ff3366" stroke-width="18" stroke-linecap="butt" pathLength="100" />
+               <path d="M 170 90 A 70 70 0 0 0 30 90" fill="none" stroke="#00ffaa" stroke-width="18" stroke-linecap="butt" pathLength="100" stroke-dasharray="{long_wr} 100" />
+            </svg>
+            <div style="position: absolute; bottom: -5px; left: 0; right: 0; text-align: center;">
+                <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom: 2px;">Ganancia</span>
+                <span style="color: {c_long}; font-size: 20px; font-weight: bold; font-family: 'JetBrains Mono', monospace;">${long_net:,.2f}</span>
+            </div>
+        </div>
+        <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
+            <div style="text-align: center;">
+                <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom:4px;">Ganadas ({long_wins})</span>
+                <span style="color: #e0e6ed; font-size: 12px; font-family: 'JetBrains Mono', monospace;">${long_gw:,.2f}</span>
+            </div>
+            <div style="text-align: center;">
+                <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom:4px;">Tasa acierto</span>
+                <span style="color: #e0e6ed; font-size: 12px; font-family: 'JetBrains Mono', monospace;">{long_wr:.1f}%</span>
+            </div>
+            <div style="text-align: center;">
+                <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom:4px;">Pérdidas ({long_losses})</span>
+                <span style="color: #e0e6ed; font-size: 12px; font-family: 'JetBrains Mono', monospace;">${long_gl:,.2f}</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+""", unsafe_allow_html=True)
 
     # --- REORDENACIÓN DE LAS OTRAS 3 MÉTRICAS ---
     st.markdown("---")
