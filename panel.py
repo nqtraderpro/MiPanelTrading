@@ -642,28 +642,146 @@ try:
         st.write(f"**Total Operaciones:** {total_trades}")
         st.write(f"**Ratio Riesgo/Beneficio:** 1 : {risk_reward_ratio:.2f}")
 
+   st.markdown("---")
+    st.markdown("### 🛒 Análisis Avanzado de Direccionalidad")
+
+    # === CÁLCULOS DE DIRECCIONALIDAD ===
+    # 1. Largos (Compras)
+    long_total = len(compras)
+    long_wins = len(compras[compras[col_beneficio] > 0])
+    long_losses = len(compras[compras[col_beneficio] < 0])
+    long_wr = (long_wins / long_total * 100) if long_total > 0 else 0
+    long_net = compras[col_beneficio].sum()
+    long_gw = compras[compras[col_beneficio] > 0][col_beneficio].sum()
+    long_gl = abs(compras[compras[col_beneficio] < 0][col_beneficio].sum())
+    c_long = "#00ffaa" if long_net >= 0 else "#ff3366"
+
+    # 2. Cortos (Ventas)
+    short_total = len(ventas)
+    short_wins = len(ventas[ventas[col_beneficio] > 0])
+    short_losses = len(ventas[ventas[col_beneficio] < 0])
+    short_wr = (short_wins / short_total * 100) if short_total > 0 else 0
+    short_net = ventas[col_beneficio].sum()
+    short_gw = ventas[ventas[col_beneficio] > 0][col_beneficio].sum()
+    short_gl = abs(ventas[ventas[col_beneficio] < 0][col_beneficio].sum())
+    c_short = "#00ffaa" if short_net >= 0 else "#ff3366"
+
+    # 3. Totales (Rentabilidad)
+    overall_lr = 100 - win_rate if total_trades > 0 else 0
+    total_wins = len(ganadoras)
+    total_losses = len(perdedoras)
+
+    # === RENDERIZADO HTML DE LAS TARJETAS (SVG GAUGES) ===
+    st.markdown(f"""
+    <div style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;">
+        
+        <div style="flex: 1; min-width: 250px; background-color: #0d1321; padding: 25px 20px; border-radius: 8px; border: 1px solid rgba(0,255,170,0.15); box-shadow: inset 0 0 20px rgba(0,255,170,0.02); display: flex; flex-direction: column; align-items: center;">
+            <h4 style="color: #e0e6ed; font-family: 'Inter', sans-serif; font-size: 15px; margin: 0 0 20px 0; align-self: flex-start;">Análisis corto</h4>
+            <div style="position: relative; width: 180px; height: 90px;">
+                <svg viewBox="0 0 200 100" width="180" height="90">
+                   <path d="M 30 90 A 70 70 0 0 1 170 90" fill="none" stroke="#ff3366" stroke-width="18" stroke-linecap="butt" pathLength="100" />
+                   <path d="M 170 90 A 70 70 0 0 0 30 90" fill="none" stroke="#00ffaa" stroke-width="18" stroke-linecap="butt" pathLength="100" stroke-dasharray="{short_wr} 100" />
+                </svg>
+                <div style="position: absolute; bottom: -5px; left: 0; right: 0; text-align: center;">
+                    <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom: 2px;">Ganancia</span>
+                    <span style="color: {c_short}; font-size: 20px; font-weight: bold; font-family: 'JetBrains Mono', monospace;">${short_net:,.2f}</span>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
+                <div style="text-align: center;">
+                    <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom:4px;">Ganadas ({short_wins})</span>
+                    <span style="color: #e0e6ed; font-size: 12px; font-family: 'JetBrains Mono', monospace;">${short_gw:,.2f}</span>
+                </div>
+                <div style="text-align: center;">
+                    <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom:4px;">Tasa acierto</span>
+                    <span style="color: #e0e6ed; font-size: 12px; font-family: 'JetBrains Mono', monospace;">{short_wr:.1f}%</span>
+                </div>
+                <div style="text-align: center;">
+                    <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom:4px;">Pérdidas ({short_losses})</span>
+                    <span style="color: #e0e6ed; font-size: 12px; font-family: 'JetBrains Mono', monospace;">${short_gl:,.2f}</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="flex: 1; min-width: 250px; background-color: #0d1321; padding: 25px 20px; border-radius: 8px; border: 1px solid rgba(0,255,170,0.15); box-shadow: inset 0 0 20px rgba(0,255,170,0.02); display: flex; flex-direction: column; align-items: center;">
+            <h4 style="color: #e0e6ed; font-family: 'Inter', sans-serif; font-size: 15px; margin: 0 0 20px 0; align-self: flex-start;">Rentabilidad</h4>
+            <div style="position: relative; width: 180px; height: 90px;">
+                <svg viewBox="0 0 200 100" width="180" height="90">
+                   <path d="M 30 90 A 70 70 0 0 1 170 90" fill="none" stroke="#ff3366" stroke-width="18" stroke-linecap="butt" pathLength="100" />
+                   <path d="M 170 90 A 70 70 0 0 0 30 90" fill="none" stroke="#00ffaa" stroke-width="18" stroke-linecap="butt" pathLength="100" stroke-dasharray="{win_rate} 100" />
+                </svg>
+                <div style="position: absolute; bottom: -5px; left: 0; right: 0; text-align: center;">
+                    <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom: 2px;">Total de operaciones</span>
+                    <span style="color: #e0e6ed; font-size: 20px; font-weight: bold; font-family: 'JetBrains Mono', monospace;">{total_trades}</span>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
+                <div style="text-align: center;">
+                    <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom:4px;">Win Rate</span>
+                    <span style="color: #00ffaa; font-size: 12px; font-family: 'JetBrains Mono', monospace;">{win_rate:.1f}%</span>
+                    <span style="color: #5a6a7a; font-size: 10px; display: block; margin-top:2px;">Ganadas: {total_wins}</span>
+                </div>
+                <div style="text-align: center;">
+                    <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom:4px;">Loss Rate</span>
+                    <span style="color: #ff3366; font-size: 12px; font-family: 'JetBrains Mono', monospace;">{overall_lr:.1f}%</span>
+                    <span style="color: #5a6a7a; font-size: 10px; display: block; margin-top:2px;">Pérdidas: {total_losses}</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="flex: 1; min-width: 250px; background-color: #0d1321; padding: 25px 20px; border-radius: 8px; border: 1px solid rgba(0,255,170,0.15); box-shadow: inset 0 0 20px rgba(0,255,170,0.02); display: flex; flex-direction: column; align-items: center;">
+            <h4 style="color: #e0e6ed; font-family: 'Inter', sans-serif; font-size: 15px; margin: 0 0 20px 0; align-self: flex-start;">Análisis largo</h4>
+            <div style="position: relative; width: 180px; height: 90px;">
+                <svg viewBox="0 0 200 100" width="180" height="90">
+                   <path d="M 30 90 A 70 70 0 0 1 170 90" fill="none" stroke="#ff3366" stroke-width="18" stroke-linecap="butt" pathLength="100" />
+                   <path d="M 170 90 A 70 70 0 0 0 30 90" fill="none" stroke="#00ffaa" stroke-width="18" stroke-linecap="butt" pathLength="100" stroke-dasharray="{long_wr} 100" />
+                </svg>
+                <div style="position: absolute; bottom: -5px; left: 0; right: 0; text-align: center;">
+                    <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom: 2px;">Ganancia</span>
+                    <span style="color: {c_long}; font-size: 20px; font-weight: bold; font-family: 'JetBrains Mono', monospace;">${long_net:,.2f}</span>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
+                <div style="text-align: center;">
+                    <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom:4px;">Ganadas ({long_wins})</span>
+                    <span style="color: #e0e6ed; font-size: 12px; font-family: 'JetBrains Mono', monospace;">${long_gw:,.2f}</span>
+                </div>
+                <div style="text-align: center;">
+                    <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom:4px;">Tasa acierto</span>
+                    <span style="color: #e0e6ed; font-size: 12px; font-family: 'JetBrains Mono', monospace;">{long_wr:.1f}%</span>
+                </div>
+                <div style="text-align: center;">
+                    <span style="color: #5a6a7a; font-size: 11px; font-family: 'Inter', sans-serif; display: block; margin-bottom:4px;">Pérdidas ({long_losses})</span>
+                    <span style="color: #e0e6ed; font-size: 12px; font-family: 'JetBrains Mono', monospace;">${long_gl:,.2f}</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    """, unsafe_allow_html=True)
+
+    # --- REORDENACIÓN DE LAS OTRAS 3 MÉTRICAS ---
     st.markdown("---")
-    col_s1, col_s2, col_s3, col_s4 = st.columns(4)
+    col_s1, col_s2, col_s3 = st.columns(3)
+    
     with col_s1:
         st.markdown("### 🟢 Rachas")
         st.write(f"🔥 **Ganadoras seguidas:** {max_racha_win}")
         st.write(f"🧊 **Perdedoras seguidas:** {max_racha_loss}")
+        
     with col_s2:
-        st.markdown("### 🛒 Direccionalidad")
-        st.write(f"📈 **Compras:** {len(compras)} ops ({wr_compras:.1f}% Acierto)")
-        st.write(f"📉 **Ventas:** {len(ventas)} ops ({wr_ventas:.1f}% Acierto)")
-    with col_s3:
         st.markdown("### 🌍 Sesiones")
         df_sesion = df_trades.groupby('Sesion').agg(Ops=(col_beneficio, 'count'), PnL=(col_beneficio, 'sum')).reset_index()
         for _, row in df_sesion.iterrows():
             st.write(f"**{row['Sesion']}:** {row['Ops']} ops | ${row['PnL']:.0f}")
-    with col_s4:
+            
+    with col_s3:
         st.markdown("### 📊 Activos (Símbolos)")
         df_activos = df_trades.groupby(col_simbolo).agg(Ops=(col_beneficio, 'count'), PnL=(col_beneficio, 'sum')).reset_index()
         for _, row in df_activos.iterrows():
             icono = "🟩" if row['PnL'] > 0 else "🟥"
             st.write(f"{icono} **{row[col_simbolo]}:** ${row['PnL']:.0f} ({row['Ops']} ops)")
-
+            
     st.markdown("---")
 
     # ==========================================
