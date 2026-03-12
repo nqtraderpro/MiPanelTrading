@@ -642,7 +642,7 @@ try:
         st.write(f"**Total Operaciones:** {total_trades}")
         st.write(f"**Ratio Riesgo/Beneficio:** 1 : {risk_reward_ratio:.2f}")
 
-   st.markdown("---")
+    st.markdown("---")
     st.markdown("### 🛒 Análisis Avanzado de Direccionalidad")
 
     # === CÁLCULOS DE DIRECCIONALIDAD ===
