@@ -1307,7 +1307,7 @@ if "GOOGLE_API_KEY" in st.secrets:
             st.session_state.mensajes_ia = []
             st.rerun()
 
-# --- 2. EL SÚPER CONTEXTO INSTITUCIONAL (VERSIÓN QUANT) ---
+# --- 2. EL SÚPER CONTEXTO INSTITUCIONAL (VERSIÓN QUANT AVANZADA) ---
     # 1. Variables de Riesgo y Cuantitativas
     z_score_val = z_score if 'z_score' in locals() else 0.0
     ghpr_val = ghpr if 'ghpr' in locals() else 0.0
@@ -1316,27 +1316,76 @@ if "GOOGLE_API_KEY" in st.secrets:
     trades_ruina_str = f"{trades_para_ruina}" if 'trades_para_ruina' in locals() else "Desconocido"
     perdida_media_str = f"${avg_loss_abs:,.2f}" if 'avg_loss_abs' in locals() else "Desconocido"
 
-    # 2. Análisis de las operaciones de HOY en tiempo real
+    # 2. Análisis temporal (Semana, Mes, Año) y Extremos (Mejor/Peor)
+    pnl_semana_str = f"${pnl_semana:,.2f}" if 'pnl_semana' in locals() else "Desconocido"
+    pnl_mes_str = f"${pnl_mes:,.2f}" if 'pnl_mes' in locals() else "Desconocido"
+    pnl_ano_str = f"${pnl_año:,.2f}" if 'pnl_año' in locals() else "Desconocido"
+    
+    if 'df_trades' in locals() and not df_trades.empty:
+        # Calcular los mejores y peores días
+        df_dias_kpi = df_trades.groupby(df_trades['Fecha'])[col_beneficio].sum().reset_index()
+        df_dias_kpi = df_dias_kpi.sort_values(col_beneficio)
+        peor_dia = df_dias_kpi.iloc[0]
+        mejor_dia = df_dias_kpi.iloc[-1]
+        peor_dia_str = f"{peor_dia['Fecha']} (PnL: ${peor_dia[col_beneficio]:,.2f})"
+        mejor_dia_str = f"{mejor_dia['Fecha']} (PnL: ${mejor_dia[col_beneficio]:,.2f})"
+        
+        # Calcular Activos (Mejor y Peor)
+        df_activos_kpi = df_trades.groupby(col_simbolo).agg(PnL=(col_beneficio, 'sum')).sort_values('PnL', ascending=False)
+        mejor_activo_str = f"{df_activos_kpi.index[0]} (${df_activos_kpi['PnL'].iloc[0]:,.2f})" if not df_activos_kpi.empty else "N/A"
+        peor_activo_str = f"{df_activos_kpi.index[-1]} (${df_activos_kpi['PnL'].iloc[-1]:,.2f})" if not df_activos_kpi.empty else "N/A"
+
+        # Calcular el historial de TODOS los meses
+        df_historial_meses = df_trades.groupby(df_trades['Cierre'].dt.to_period('M'))[col_beneficio].sum()
+        historial_meses_str = " | ".join([f"{mes}: ${pnl:,.2f}" for mes, pnl in df_historial_meses.items()])
+    else:
+        peor_dia_str, mejor_dia_str, mejor_activo_str, peor_activo_str, historial_meses_str = "N/A", "N/A", "N/A", "N/A", "N/A"
+
+    # 3. Análisis de las operaciones de HOY en tiempo real
     hoy_fecha = pd.Timestamp.today().date()
-    df_hoy = df_trades[df_trades['Cierre'].dt.date == hoy_fecha]
+    df_hoy = df_trades[df_trades['Cierre'].dt.date == hoy_fecha] if 'df_trades' in locals() else pd.DataFrame()
     
     if df_hoy.empty:
         resumen_hoy = "Hoy no has registrado ninguna operación. Día en blanco."
     else:
         ops_hoy = len(df_hoy)
         pnl_hoy = df_hoy[col_beneficio].sum()
-        # Sacamos una lista con los resultados de hoy para que la IA vea si hay rachas
         lista_resultados = [f"${val:,.2f}" for val in df_hoy[col_beneficio].values]
         resumen_hoy = f"ATENCIÓN: Has realizado {ops_hoy} operaciones hoy. PnL Diario de hoy: ${pnl_hoy:,.2f}. Resultados individuales de hoy: {', '.join(lista_resultados)}."
 
-    # 3. El Súper Prompt (El cerebro del CRO)
+    # 4. El Súper Prompt (El cerebro del CRO)
     contexto = f"""
     Eres el Director de Riesgos (Chief Risk Officer - CRO) de un fondo de inversión cuantitativo en Wall Street. 
     Estás analizando la cuenta de fondeo de tu trader principal. 
-    PROHIBIDO decir que eres una IA, un modelo de lenguaje o que no tienes acceso a la cuenta. Estás conectado directamente por API a su terminal de MetaTrader y ves sus números en tiempo real.
+    PROHIBIDO decir que eres una IA o que no tienes acceso a la cuenta. Ahora tienes acceso a su base de datos temporal completa por API en tiempo real.
     
-    Tu tono debe ser analítico, directo, estrictamente profesional y sin rodeos. Eres constructivo pero implacable con la gestión de riesgo. No des consejos genéricos de libro, básate ÚNICA Y EXCLUSIVAMENTE en estas métricas exactas:
+    📈 RENDIMIENTO GLOBAL Y VENTAJA ESTADÍSTICA (EDGE):
+    - Win Rate: {win_rate:.1f}% | Profit Factor: {profit_factor:.2f} | PnL Total: ${beneficio_total:,.2f}
+    - Z-Score (Patrón de Rachas): {z_score_val:.2f}
+    
+    🛡️ SUPERVIVENCIA ESTADÍSTICA:
+    - Riesgo Ruina (-10%): {riesgo_ruina_str} (Margen: {trades_ruina_str} pérdidas seguidas)
+    
+    📅 RENDIMIENTO TEMPORAL Y EXTREMOS:
+    - Esta Semana: {pnl_semana_str}
+    - Este Mes: {pnl_mes_str}
+    - Este Año: {pnl_ano_str}
+    - Historial Mensual Completo: {historial_meses_str}
+    - Mejor Día Histórico: {mejor_dia_str}
+    - Peor Día Histórico: {peor_dia_str}
+    - Activo Más Rentable: {mejor_activo_str}
+    - Activo Con Más Pérdidas: {peor_activo_str}
 
+    ⚡ OPERATIVA DE HOY ({hoy_fecha.strftime('%d/%m/%Y')}):
+    - {resumen_hoy}
+
+    REGLAS DE RESPUESTA DEL CRO:
+    1. Si te pregunta por un balance de la semana, mes o año, USA LOS DATOS EXACTOS de la sección 'RENDIMIENTO TEMPORAL'. Nunca digas que no tienes acceso.
+    2. Si te pregunta por sus peores o mejores días, o sobre qué activo operar, dale los datos exactos del bloque de 'EXTREMOS' y aconséjale en base a ello.
+    3. Si te pregunta por meses anteriores, consulta la línea de 'Historial Mensual Completo' y compáralos.
+    4. Si su peor día es reciente o la semana está en negativo, exígele que ajuste su tamaño de posición (lotes) de inmediato.
+    5. Sé directo, profesional, usa listas o negritas. Eres un veterano de Wall Street.
+    """
     📈 RENDIMIENTO GLOBAL Y VENTAJA ESTADÍSTICA (EDGE):
     - Win Rate: {win_rate:.1f}%
     - Profit Factor: {profit_factor:.2f}
