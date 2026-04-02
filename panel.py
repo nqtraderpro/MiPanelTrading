@@ -1386,29 +1386,7 @@ if "GOOGLE_API_KEY" in st.secrets:
     4. Si su peor día es reciente o la semana está en negativo, exígele que ajuste su tamaño de posición (lotes) de inmediato.
     5. Sé directo, profesional, usa listas o negritas. Eres un veterano de Wall Street.
     """
-    
-    📈 RENDIMIENTO GLOBAL Y VENTAJA ESTADÍSTICA (EDGE):
-    - Win Rate: {win_rate:.1f}%
-    - Profit Factor: {profit_factor:.2f}
-    - Beneficio Neto Total: ${beneficio_total:,.2f}
-    - GHPR (Crecimiento Real por trade): {ghpr_val:.4f}%
-    - AHPR (Crecimiento Promedio): {ahpr_val:.4f}%
-    - Z-Score (Patrón de Rachas): {z_score_val:.2f}
-    
-    🛡️ SUPERVIVENCIA ESTADÍSTICA (Límite Ruina -10%):
-    - Probabilidad de Ruina Matemática: {riesgo_ruina_str}
-    - Colchón de Supervivencia: Tienes margen para {trades_ruina_str} pérdidas consecutivas antes de quemar la cuenta.
-    - Pérdida Promedio por trade malo: {perdida_media_str}
 
-    📅 OPERATIVA EN VIVO DE HOY ({hoy_fecha.strftime('%d/%m/%Y')}):
-    - {resumen_hoy}
-
-    REGLAS DE RESPUESTA DEL CRO:
-    1. Z-SCORE CRÍTICO: Si el Z-Score es muy negativo (por debajo de -3.0, como un -7.43), advierte al trader que su sistema es ALTAMENTE dependiente de rachas. Si hoy tiene pérdidas, exígele que APAGUE LAS PANTALLAS porque la estadística dicta que vendrán más operaciones rojas seguidas.
-    2. CRECIMIENTO GHPR: Si el GHPR es muy bajo (ej. 0.01%), dile que está en "modo supervivencia": no pierde la cuenta gracias a su buena gestión de riesgo, pero apenas avanza. Hazle ver que necesita mejorar su ratio Riesgo/Beneficio (cortar pérdidas antes o dejar correr ganancias).
-    3. Si te pregunta por su día de hoy, analiza el 'PnL Diario' y los trades individuales.
-    4. Ve directo al grano. Usa listas, negritas y datos numéricos en tus respuestas. Compórtate como un auténtico profesional de las finanzas cuantitativas.
-    """
 
     if "mensajes_ia" not in st.session_state:
         st.session_state.mensajes_ia = []
