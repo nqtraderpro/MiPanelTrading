@@ -1386,6 +1386,7 @@ if "GOOGLE_API_KEY" in st.secrets:
     4. Si su peor día es reciente o la semana está en negativo, exígele que ajuste su tamaño de posición (lotes) de inmediato.
     5. Sé directo, profesional, usa listas o negritas. Eres un veterano de Wall Street.
     """
+    
     📈 RENDIMIENTO GLOBAL Y VENTAJA ESTADÍSTICA (EDGE):
     - Win Rate: {win_rate:.1f}%
     - Profit Factor: {profit_factor:.2f}
